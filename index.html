@@ -1,1840 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Pollux — Anonymous real-time Nigerian political sentiment. Vote, comment, and see what Nigeria really thinks.">
-<title>Pollux — Nigerian Political Sentiment</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+          content="Pollux — Anonymous real-time Nigerian political sentiment. Vote, comment, and see what Nigeria really thinks.">
+    <title>Pollux — Nigerian Political Sentiment</title>
 
-<!-- Yellix (display) -->
-<link href="https://fonts.cdnfonts.com/css/yellix" rel="stylesheet">
-<!-- Inter (UI/body) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Yellix (display) -->
+    <link href="https://fonts.cdnfonts.com/css/yellix" rel="stylesheet">
+    <!-- Inter (UI/body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- ✅ Supabase JS Library (connects your site to the cloud database) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-/* ═══════════════════════════════════════════════════════
-   POLLUX — DESIGN SYSTEM
-   Display: Yellix (geometric, tight, bold)
-   UI/Body: Inter (legible, neutral)
-   Theme: Premium Dark Mode · Bento Minimalism
-   Background void: #0A0A0A
-   Surface 1: #111111
-   Surface 2: #161616
-   Border: rgba(255,255,255,0.08)
-═══════════════════════════════════════════════════════ */
-
-:root {
-  /* Void */
-  --void:    #0A0A0A;
-  --s1:      #111111;
-  --s2:      #161616;
-  --s3:      #1C1C1C;
-  --s4:      #222222;
-
-  /* Borders — 1px micro-borders only */
-  --b1:      rgba(255,255,255,0.08);
-  --b2:      rgba(255,255,255,0.14);
-  --b3:      rgba(255,255,255,0.20);
-
-  /* Typography */
-  --white:   #FFFFFF;
-  --mu1:     #A0A0A0;
-  --mu2:     #888888;
-  --mu3:     #555555;
-  --mu4:     #333333;
-
-  /* Accents — used VERY sparingly */
-  --lime:    #84cc16;      /* primary accent */
-  --lime-d:  rgba(132,204,22,0.10);
-  --lime-b:  rgba(132,204,22,0.22);
-  --red:     #ef4444;
-  --red-d:   rgba(239,68,68,0.10);
-  --red-b:   rgba(239,68,68,0.22);
-
-  /* Radius */
-  --r-sm:    10px;
-  --r-md:    16px;
-  --r-lg:    24px;
-  --r-xl:    28px;
-  --r-pill:  100px;
-
-  /* Fonts */
-  --f-display: 'Yellix', 'DM Sans', system-ui, sans-serif;
-  --f-ui:      'Inter', system-ui, sans-serif;
-}
-
-/* ── RESET ── */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body {
-  background: var(--void);
-  color: var(--white);
-  font-family: var(--f-ui);
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
-button { font-family: var(--f-ui); }
-input, textarea, select { font-family: var(--f-ui); }
-
-/* ── AURORA BACKGROUND ── */
-.aurora {
-  position: fixed; inset: 0;
-  pointer-events: none; z-index: 0; overflow: hidden;
-}
-.aurora-blob {
-  position: absolute; border-radius: 50%; filter: blur(150px);
-}
-.ab1 {
-  width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(132,204,22,0.06) 0%, transparent 65%);
-  top: -280px; left: -200px;
-}
-.ab2 {
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 65%);
-  bottom: -200px; right: -150px;
-}
-.ab3 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 65%);
-  top: 40%; left: 55%; transform: translate(-50%,-50%);
-}
-
-/* ── NAVIGATION ── */
-nav {
-  position: fixed; top:0; left:0; right:0; z-index:200;
-  height: 60px;
-  display: flex; align-items:center; justify-content:space-between;
-  padding: 0 28px;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-bottom: 1px solid var(--b1);
-}
-.nav-brand {
-  display: flex; align-items:center; gap:10px;
-  cursor: pointer; user-select:none;
-}
-.nav-mark {
-  width: 30px; height: 30px;
-  background: var(--lime);
-  border-radius: 8px;
-  display: flex; align-items:center; justify-content:center;
-  font-family: var(--f-display);
-  font-weight: 800; font-size: 13px; color: #000;
-  letter-spacing: -0.5px; flex-shrink:0;
-}
-.nav-name {
-  font-family: var(--f-display);
-  font-weight: 700; font-size: 17px; letter-spacing: -0.6px;
-}
-.nav-pill {
-  display: inline-flex; align-items:center; gap:5px;
-  font-size: 10px; font-weight: 600;
-  background: rgba(132,204,22,0.08);
-  color: var(--lime);
-  border: 1px solid rgba(132,204,22,0.2);
-  border-radius: var(--r-pill); padding: 2px 9px;
-  letter-spacing: 0.3px;
-}
-.live-dot {
-  width: 5px; height: 5px; background: var(--lime);
-  border-radius: 50%; flex-shrink:0;
-  animation: ldot 2s ease-in-out infinite;
-}
-@keyframes ldot {
-  0%,100% { opacity:1; transform:scale(1); }
-  50% { opacity:0.3; transform:scale(0.7); }
-}
-.nav-links {
-  display: flex; align-items:center; gap:2px; list-style:none;
-}
-.nav-links a {
-  display: block; text-decoration:none; cursor:pointer;
-  color: var(--mu2); font-size: 13.5px; font-weight: 500;
-  padding: 6px 13px; border-radius: var(--r-sm);
-  transition: all .15s ease;
-}
-.nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.04); }
-.nav-links a.on { color: var(--white); background: var(--s2); }
-.nav-cta {
-  padding: 8px 20px; border-radius: var(--r-pill);
-  background: var(--white); color: #000; border:none;
-  font-size: 13px; font-weight: 600; cursor:pointer;
-  transition: all .15s; letter-spacing: -0.1px;
-}
-.nav-cta:hover { background: #e8e8e8; transform: translateY(-1px); }
-.hbg {
-  display: none; flex-direction:column; gap:5px;
-  cursor:pointer; padding:4px; background:none; border:none;
-}
-.hbg span {
-  width:20px; height:1.5px; background:var(--mu2);
-  border-radius:1px; transition:all .2s; display:block;
-}
-.hbg.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-.hbg.open span:nth-child(2) { opacity: 0; }
-.hbg.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-.mnav {
-  display:none; position:fixed; top:60px; left:0; right:0;
-  background:rgba(10,10,10,0.98); backdrop-filter:blur(28px);
-  border-bottom:1px solid var(--b1); z-index:199;
-}
-.mnav.open { display:block; }
-.mnav a {
-  display:block; padding:14px 24px; color:var(--mu2);
-  font-size:15px; font-weight:500; cursor:pointer;
-  border-bottom:1px solid var(--b1); transition:color .15s;
-}
-.mnav a.on, .mnav a:hover { color:var(--white); }
-
-/* ── PAGE SYSTEM ── */
-main { position:relative; z-index:1; padding-top:60px; }
-.page { display:none; animation: pagein .28s ease; }
-.page.on { display:block; }
-@keyframes pagein {
-  from { opacity:0; transform:translateY(8px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-/* ── SHARED UTILITY ── */
-.wrap { max-width:1240px; margin:0 auto; padding:0 28px; }
-.eyebrow {
-  font-size: 10.5px; font-weight:600; color:var(--mu2);
-  letter-spacing:1.4px; text-transform:uppercase; margin-bottom:8px;
-}
-.sec-hd {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:18px;
-}
-.sec-title {
-  font-family: var(--f-display);
-  font-size: 20px; font-weight:700; letter-spacing:-0.5px;
-}
-.sec-lnk {
-  font-size:12.5px; color:var(--mu2); cursor:pointer;
-  transition:color .15s; user-select:none;
-}
-.sec-lnk:hover { color:var(--white); }
-.divider-txt {
-  display:flex; align-items:center; gap:14px;
-  max-width:1240px; margin:0 auto 44px; padding:0 28px;
-  color:var(--mu4); font-size:9.5px; font-weight:600;
-  text-transform:uppercase; letter-spacing:1.8px;
-}
-.divider-txt::before,.divider-txt::after {
-  content:''; flex:1; height:1px; background:var(--b1);
-}
-.page-title {
-  font-family: var(--f-display);
-  font-size: 42px; font-weight:800; letter-spacing:-2.5px;
-  margin-bottom:6px; line-height:1;
-}
-.page-sub {
-  font-size: 14px; color:var(--mu2); margin-bottom:24px;
-  line-height:1.6;
-}
-
-/* ── PARTY PILLS ── */
-.tag {
-  display:inline-flex; align-items:center;
-  font-size: 9.5px; font-weight:700;
-  padding: 2px 9px; border-radius: var(--r-pill);
-  text-transform:uppercase; letter-spacing:0.5px;
-  border: 1px solid var(--b1);
-  background: rgba(255,255,255,0.04);
-  color: var(--mu2); white-space:nowrap;
-}
-.tag.apc   { border-color:rgba(132,204,22,0.28); color:var(--lime);  background:var(--lime-d); }
-.tag.pdp   { border-color:rgba(239,68,68,0.28);  color:#ef4444;       background:var(--red-d); }
-.tag.lp    { border-color:rgba(245,158,11,0.28); color:#f59e0b;       background:rgba(245,158,11,0.08); }
-.tag.nnpp  { border-color:rgba(139,92,246,0.28); color:#a78bfa;       background:rgba(139,92,246,0.08); }
-.tag.apga  { border-color:rgba(20,184,166,0.28); color:#14b8a6;       background:rgba(20,184,166,0.08); }
-.tag.indep { border-color:rgba(96,165,250,0.28); color:#60a5fa;       background:rgba(96,165,250,0.08); }
-.tag.type  {
-  border-color:var(--b1); color:var(--mu3);
-  background:transparent; font-size:9px;
-}
-
-/* ── BENTO CARD (base) ── */
-.bcard {
-  background: var(--s1);
-  border: 1px solid var(--b1);
-  border-radius: var(--r-xl);
-  position:relative; overflow:hidden;
-  transition: transform .18s ease, border-color .18s ease, background .18s ease;
-}
-.bcard::before {
-  content:'';
-  position:absolute; inset:0;
-  background: radial-gradient(circle at 85% 5%, rgba(255,255,255,0.025), transparent 55%);
-  pointer-events:none; z-index:0;
-}
-.bcard > * { position:relative; z-index:1; }
-.bcard:hover {
-  transform: translateY(-2px);
-  border-color: var(--b2);
-  background: var(--s2);
-}
-
-/* ── POLITICIAN CARD ── */
-.pcard {
-  background: var(--s1);
-  border: 1px solid var(--b1);
-  border-radius: var(--r-xl);
-  padding: 22px;
-  position:relative; overflow:hidden;
-  transition: transform .18s ease, border-color .18s ease, background .18s ease;
-}
-.pcard::before {
-  content:'';
-  position:absolute; inset:0;
-  background: radial-gradient(circle at 85% 5%, rgba(255,255,255,0.02), transparent 55%);
-  pointer-events:none;
-}
-.pcard:hover { transform:translateY(-2px); border-color:var(--b2); background:var(--s2); }
-
-/* Avatar */
-.av {
-  width:46px; height:46px; border-radius:13px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-family: var(--f-display); font-weight:800; font-size:14px; color:#000;
-}
-/* Card header */
-.pcard-hd { display:flex; align-items:flex-start; gap:13px; margin-bottom:13px; }
-.pcard-info { flex:1; min-width:0; }
-.pcard-name {
-  font-family: var(--f-display);
-  font-size: 15px; font-weight:700; letter-spacing:-0.4px;
-  margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.pcard-tags { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
-.pcard-role { font-size:10.5px; color:var(--mu3); margin-top:3px; }
-.pcard-bio {
-  font-size: 11.5px; color:var(--mu2); line-height:1.65;
-  margin-bottom:13px;
-  display:-webkit-box; -webkit-line-clamp:2;
-  -webkit-box-orient:vertical; overflow:hidden;
-}
-
-/* Vote bar */
-.vbar-wrap { margin-bottom:12px; }
-.vbar-track {
-  height:3px; background:rgba(255,255,255,0.06);
-  border-radius:2px; overflow:hidden; margin-bottom:6px;
-}
-.vbar-fill {
-  height:100%; border-radius:2px; background:var(--lime);
-  transition: width .65s cubic-bezier(.4,0,.2,1);
-}
-.vnums { display:flex; justify-content:space-between; font-size:10.5px; }
-.vn-s { color:var(--lime); font-weight:600; }
-.vn-o { color:var(--red);  font-weight:600; }
-
-/* Vote buttons */
-.vbtns { display:flex; gap:6px; margin-bottom:0; }
-.vbtn {
-  flex:1; display:flex; align-items:center; justify-content:center; gap:5px;
-  padding: 8px 0; border-radius:10px;
-  border: 1px solid var(--b1);
-  background: transparent; color:var(--mu2);
-  font-size: 12px; font-weight:600; cursor:pointer;
-  transition: all .15s ease;
-}
-.vbtn:hover { border-color:var(--b2); background:rgba(255,255,255,0.03); }
-.vbtn svg { width:12px; height:12px; stroke-width:2; flex-shrink:0; }
-.vbtn.vs { background:var(--lime-d); border-color:var(--lime-b); color:var(--lime); }
-.vbtn.vo { background:var(--red-d);  border-color:var(--red-b);  color:var(--red); }
-@keyframes blip { 0%{transform:scale(1)} 40%{transform:scale(.93)} 100%{transform:scale(1)} }
-.blip { animation:blip .18s ease; }
-
-/* Comment section */
-.comment-divider {
-  margin-top:10px; padding-top:10px;
-  border-top:1px solid var(--b1);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.comment-toggle {
-  display:flex; align-items:center; gap:6px;
-  font-size:11px; color:var(--mu3); cursor:pointer; background:none; border:none;
-  transition:color .15s;
-}
-.comment-toggle:hover { color:var(--mu1); }
-.comment-toggle svg { width:11px; height:11px; flex-shrink:0; }
-.comment-add-btn {
-  font-size:11px; color:var(--mu3); background:none; border:none;
-  cursor:pointer; transition:color .15s;
-}
-.comment-add-btn:hover { color:var(--lime); }
-.comment-form {
-  margin-top:10px; padding-top:10px;
-  border-top:1px solid var(--b1);
-}
-.comment-textarea {
-  width:100%; background:var(--s3); border:1px solid var(--b1);
-  border-radius:10px; color:var(--white);
-  font-size:11.5px; padding:10px 13px; resize:none; outline:none;
-  line-height:1.6; transition:border-color .15s;
-}
-.comment-textarea::placeholder { color:var(--mu3); }
-.comment-textarea:focus { border-color:var(--b2); }
-.comment-form-footer {
-  display:flex; justify-content:space-between; align-items:center;
-  margin-top:8px;
-}
-.char-count { font-size:10px; color:var(--mu3); }
-.comment-post-btn {
-  font-size:11px; font-weight:600; padding:6px 16px;
-  border-radius:var(--r-pill); background:var(--white); color:#000;
-  border:none; cursor:pointer; transition:all .15s;
-}
-.comment-post-btn:hover { background:#e8e8e8; }
-.comment-post-btn:disabled { opacity:0.3; cursor:default; }
-.comment-list { margin-top:10px; padding-top:10px; border-top:1px solid var(--b1); }
-.comment-item { display:flex; gap:9px; margin-bottom:10px; }
-.comment-item:last-child { margin-bottom:0; }
-.comment-avatar {
-  width:22px; height:22px; border-radius:var(--r-pill); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--s3); font-size:9px; font-weight:700; color:var(--mu2);
-}
-.comment-body { flex:1; min-width:0; }
-.comment-meta {
-  display:flex; align-items:center; gap:7px;
-  flex-wrap:wrap; margin-bottom:3px;
-}
-.comment-voter { font-size:10.5px; font-weight:600; color:var(--mu1); }
-.comment-time  { font-size:10px; color:var(--mu3); }
-.comment-sent-up   { font-size:10px; color:var(--lime); }
-.comment-sent-down { font-size:10px; color:var(--red); }
-.comment-text { font-size:11px; color:var(--mu2); line-height:1.6; }
-
-/* AI button */
-.ai-btn {
-  margin-top:8px; width:100%;
-  display:flex; align-items:center; justify-content:center; gap:6px;
-  padding:7px 0; border-radius:10px;
-  border:1px solid var(--b1); background:transparent;
-  color:var(--mu3); font-size:10.5px; font-weight:500; cursor:pointer;
-  transition:all .15s;
-}
-.ai-btn:hover {
-  border-color:rgba(139,92,246,0.35);
-  color:#a78bfa; background:rgba(139,92,246,0.07);
-}
-.ai-btn svg { width:11px; height:11px; flex-shrink:0; }
-
-/* ── HOME PAGE ── */
-.home-hero {
-  padding: 72px 28px 56px;
-  max-width:1240px; margin:0 auto;
-}
-.hero-eyebrow {
-  display:inline-flex; align-items:center; gap:7px;
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-pill); padding:5px 13px;
-  margin-bottom:28px;
-  font-size:11px; color:var(--mu2); font-weight:500;
-}
-.hero-title {
-  font-family: var(--f-display);
-  font-size: clamp(52px, 9vw, 112px);
-  font-weight: 800; line-height: 0.9;
-  letter-spacing: -5px; margin-bottom:22px; max-width:860px;
-}
-.hero-title em { font-style:normal; color:var(--lime); }
-.hero-sub {
-  font-size:16px; color:var(--mu2);
-  max-width:460px; line-height:1.7;
-  margin-bottom:36px; font-weight:400;
-}
-.hero-actions { display:flex; gap:10px; flex-wrap:wrap; }
-.btn-primary {
-  padding:13px 28px; border-radius:var(--r-pill);
-  background:var(--white); color:#000; border:none;
-  font-size:14px; font-weight:600; cursor:pointer;
-  transition:all .15s; letter-spacing:-0.1px;
-}
-.btn-primary:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,255,255,0.08); }
-.btn-ghost {
-  padding:13px 28px; border-radius:var(--r-pill);
-  background:transparent; color:var(--mu2);
-  border:1px solid var(--b1); font-size:14px; font-weight:500; cursor:pointer;
-  transition:all .15s;
-}
-.btn-ghost:hover { border-color:var(--b2); color:var(--white); }
-
-/* LIVE COUNTER BANNER */
-.live-banner { max-width:1240px; margin:0 auto 52px; padding:0 28px; }
-.lbc {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:28px 32px;
-  display:flex; align-items:center; gap:32px; flex-wrap:wrap;
-  position:relative; overflow:hidden;
-}
-.lbc::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 15% 50%, rgba(132,204,22,0.05), transparent 55%);
-  pointer-events:none;
-}
-.lbc-main { flex:1; min-width:220px; position:relative; }
-.lbc-label {
-  font-size:10.5px; font-weight:600; color:var(--mu2);
-  text-transform:uppercase; letter-spacing:1.2px;
-  margin-bottom:8px; display:flex; align-items:center; gap:7px;
-}
-.lbc-num {
-  font-family: var(--f-display);
-  font-size: 56px; font-weight:800; letter-spacing:-4px; line-height:1;
-}
-.lbc-num em { font-style:normal; color:var(--lime); }
-.lbc-sub { font-size:12px; color:var(--mu2); margin-top:8px; }
-.lbc-stats { display:flex; flex-shrink:0; }
-.lbc-stat {
-  padding:14px 26px; text-align:center;
-  border-left:1px solid var(--b1);
-}
-.lbc-stat:first-child { border-left:none; }
-.lbc-stat-n {
-  font-family: var(--f-display);
-  font-size:26px; font-weight:800; letter-spacing:-1.5px; margin-bottom:3px;
-}
-.lbc-stat-l {
-  font-size:10px; color:var(--mu2);
-  text-transform:uppercase; letter-spacing:0.7px;
-}
-
-/* HOME SECTIONS */
-.home-sec { padding:0 28px 56px; max-width:1240px; margin:0 auto; }
-.g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }
-
-/* ── POLLS PAGE ── */
-.polls-head { padding:44px 28px 24px; max-width:1240px; margin:0 auto; }
-.filter-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.fbtn {
-  padding:6px 15px; border-radius:var(--r-pill);
-  border:1px solid var(--b1); background:transparent;
-  color:var(--mu2); font-size:12.5px; font-weight:500;
-  cursor:pointer; transition:all .15s;
-}
-.fbtn:hover { border-color:var(--b2); color:var(--white); }
-.fbtn.on { background:var(--s2); border-color:var(--b2); color:var(--white); }
-.sbox { position:relative; }
-.sbox svg {
-  position:absolute; left:11px; top:50%; transform:translateY(-50%);
-  color:var(--mu3); pointer-events:none;
-}
-.sin {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-pill); color:var(--white);
-  font-size:12.5px; padding:6px 14px 6px 32px;
-  outline:none; width:200px; transition:border-color .15s;
-}
-.sin::placeholder { color:var(--mu3); }
-.sin:focus { border-color:var(--b2); }
-.sel-filter {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-pill); color:var(--mu1);
-  font-size:12.5px; padding:6px 14px; outline:none;
-  cursor:pointer; transition:border-color .15s;
-  appearance:none;
-}
-.sel-filter:focus { border-color:var(--b2); }
-
-/* Polls layout — cards + sidebar */
-.polls-body {
-  max-width:1240px; margin:0 auto; padding:0 28px 80px;
-  display:grid; grid-template-columns:1fr 300px; gap:20px;
-}
-.pgrid { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; align-content:start; }
-.empty {
-  grid-column:1/-1; text-align:center;
-  padding:60px 24px; color:var(--mu2);
-}
-.empty-ico {
-  width:44px; height:44px; border-radius:13px;
-  background:var(--s1); border:1px solid var(--b1);
-  display:flex; align-items:center; justify-content:center;
-  margin:0 auto 14px; color:var(--mu3);
-}
-.polls-count {
-  font-size:12px; color:var(--mu3); margin-bottom:16px;
-}
-.polls-count span { color:var(--white); font-weight:600; }
-
-/* Polls sidebar */
-.polls-sidebar { display:flex; flex-direction:column; gap:12px; position:sticky; top:80px; }
-.sidebar-card {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:20px;
-}
-.sidebar-title {
-  font-family: var(--f-display);
-  font-size:13px; font-weight:700; letter-spacing:-0.3px;
-  margin-bottom:14px; display:flex; align-items:center; gap:7px;
-}
-.sb-row {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:9px 0; border-bottom:1px solid var(--b1);
-  font-size:12px;
-}
-.sb-row:last-child { border-bottom:none; padding-bottom:0; }
-.sb-name { color:var(--mu1); font-weight:500; }
-.sb-val  { font-family:var(--f-display); font-weight:700; font-size:13px; letter-spacing:-0.5px; }
-
-/* Your Votes strip */
-.your-votes {
-  max-width:1240px; margin:0 auto 28px; padding:0 28px;
-}
-.yv-card {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:18px 22px;
-}
-.yv-title {
-  font-family:var(--f-display); font-size:13px; font-weight:700;
-  letter-spacing:-0.3px; margin-bottom:12px;
-  display:flex; align-items:center; gap:8px;
-}
-.yv-pills { display:flex; gap:6px; flex-wrap:wrap; }
-.yv-pill {
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:11.5px; font-weight:500; padding:5px 12px;
-  border-radius:var(--r-pill); cursor:pointer;
-  transition:all .15s;
-}
-.yv-pill-s { background:var(--lime-d); color:var(--lime); border:1px solid var(--lime-b); }
-.yv-pill-o { background:var(--red-d);  color:var(--red);  border:1px solid var(--red-b); }
-.yv-pill-x { font-size:12px; opacity:0.5; }
-.yv-pill:hover .yv-pill-x { opacity:1; }
-
-/* ── LEADERBOARD ── */
-.lb-wrap { max-width:860px; margin:0 auto; padding:44px 28px 80px; }
-.lb-tabs {
-  display:flex; gap:2px; background:var(--s1);
-  border:1px solid var(--b1); border-radius:12px;
-  padding:3px; width:fit-content; margin-bottom:24px;
-}
-.lb-tab {
-  padding:7px 18px; border-radius:9px; border:1px solid transparent;
-  background:transparent; color:var(--mu2);
-  font-size:13px; font-weight:500; cursor:pointer;
-  transition:all .15s;
-}
-.lb-tab.on { background:var(--s2); color:var(--white); border-color:var(--b1); }
-.lb-list { display:flex; flex-direction:column; gap:2px; }
-.lb-row {
-  display:flex; align-items:center; gap:14px;
-  padding:13px 17px; border-radius:var(--r-md);
-  background:var(--s1); border:1px solid var(--b1);
-  cursor:pointer; transition:all .15s;
-}
-.lb-row:hover { border-color:var(--b2); background:var(--s2); }
-.lb-rank {
-  font-family:var(--f-display); font-weight:800; font-size:13px;
-  width:22px; text-align:center; flex-shrink:0; color:var(--mu3);
-}
-.lb-rank.g { color:#FFD700; }
-.lb-rank.s { color:#B8C0CC; }
-.lb-rank.b { color:#CD7F32; }
-.lb-av {
-  width:36px; height:36px; border-radius:9px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-display); font-weight:800; font-size:11px; color:#000;
-}
-.lb-info { flex:1; min-width:0; }
-.lb-name {
-  font-family:var(--f-display); font-weight:700; font-size:13.5px;
-  letter-spacing:-0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.lb-det { font-size:11px; color:var(--mu2); margin-top:2px; }
-.lb-bar-w { width:130px; flex-shrink:0; }
-.lb-bar { height:2.5px; background:rgba(255,255,255,0.06); border-radius:2px; margin-bottom:4px; overflow:hidden; }
-.lb-fill { height:100%; border-radius:2px; transition:width .5s ease; }
-.lb-votes { font-size:10px; color:var(--mu3); }
-.lb-pct {
-  font-family:var(--f-display); font-weight:800; font-size:18px;
-  letter-spacing:-1px; width:58px; text-align:right; flex-shrink:0;
-}
-.lb-pct.gs { color:var(--lime); }
-.lb-pct.go { color:var(--red); }
-.lb-pct.gn { color:var(--white); }
-
-/* ── REGIONS ── */
-.rg-wrap { max-width:1240px; margin:0 auto; padding:44px 28px 80px; }
-.rg-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; margin-top:28px; }
-.rg-card {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:24px;
-  transition:border-color .15s;
-}
-.rg-card:hover { border-color:var(--b2); }
-.rg-zone {
-  font-family:var(--f-display);
-  font-size:17px; font-weight:700; letter-spacing:-0.5px; margin-bottom:3px;
-}
-.rg-states { font-size:11px; color:var(--mu2); margin-bottom:18px; line-height:1.5; }
-.rp-list  { display:flex; flex-direction:column; gap:12px; }
-.rp-row   { display:flex; flex-direction:column; gap:5px; }
-.rp-top   { display:flex; align-items:center; gap:9px; }
-.rp-av    {
-  width:28px; height:28px; border-radius:7px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-display); font-weight:800; font-size:8px; color:#000;
-}
-.rp-name  { font-size:12.5px; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.rp-pct   { font-family:var(--f-display); font-weight:800; font-size:14px; letter-spacing:-0.5px; flex-shrink:0; }
-.rp-bar   { height:2px; background:rgba(255,255,255,0.06); border-radius:1px; overflow:hidden; margin-left:37px; }
-.rp-fill  { height:100%; border-radius:1px; }
-
-/* ── ABOUT ── */
-.ab-wrap { max-width:780px; margin:0 auto; padding:44px 28px 80px; }
-.ab-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; margin-bottom:24px; }
-.ab-card {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:26px;
-}
-.ab-icon {
-  width:38px; height:38px; border-radius:10px;
-  background:var(--lime-d); border:1px solid var(--lime-b);
-  display:flex; align-items:center; justify-content:center;
-  margin-bottom:14px; color:var(--lime);
-}
-.ab-ct {
-  font-family:var(--f-display);
-  font-size:15px; font-weight:700; letter-spacing:-0.3px; margin-bottom:8px;
-}
-.ab-cb { font-size:13px; color:var(--mu2); line-height:1.68; }
-.ab-note {
-  background:var(--s1); border:1px solid var(--b1);
-  border-radius:var(--r-xl); padding:28px;
-}
-.ab-nt {
-  font-family:var(--f-display);
-  font-size:16px; font-weight:700; letter-spacing:-0.4px; margin-bottom:12px;
-}
-.ab-note p { font-size:13px; color:var(--mu2); line-height:1.72; margin-bottom:10px; }
-.ab-note p:last-child { margin-bottom:0; }
-
-/* ── TOAST ── */
-.toast {
-  position:fixed; bottom:24px; left:50%;
-  transform:translateX(-50%) translateY(90px);
-  background:var(--s3); border:1px solid var(--b2);
-  border-radius:var(--r-pill); padding:11px 20px;
-  font-size:13px; font-weight:500; z-index:300;
-  white-space:nowrap; display:flex; align-items:center; gap:8px;
-  backdrop-filter:blur(20px);
-  box-shadow:0 20px 48px rgba(0,0,0,0.5);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  pointer-events:none;
-}
-.toast.show { transform:translateX(-50%) translateY(0); }
-.toast-pip { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-
-/* ── RESPONSIVE ── */
-@media (max-width:1100px) {
-  .polls-body { grid-template-columns:1fr; }
-  .polls-sidebar { position:static; }
-  .pgrid { grid-template-columns:repeat(2,1fr); }
-}
-@media (max-width:920px) {
-  .g3 { grid-template-columns:repeat(2,1fr); }
-  .rg-grid { grid-template-columns:1fr; }
-}
-@media (max-width:640px) {
-  .g3, .pgrid { grid-template-columns:1fr; }
-  .nav-links, .nav-cta { display:none; }
-  .hbg { display:flex; }
-  .hero-title { letter-spacing:-3px; }
-  .page-title { font-size:30px; letter-spacing:-1.5px; }
-  .lbc-num { font-size:40px; }
-  .lbc-stats { flex-wrap:wrap; }
-  .lbc-stat { padding:10px 16px; }
-  .ab-grid { grid-template-columns:1fr; }
-  .lb-bar-w { display:none; }
-  .polls-sidebar { display:none; }
-}
-</style>
+    <script type="module" src="/src/main.ts"></script>
 </head>
+
 <body>
 
-<!-- AURORA -->
-<div class="aurora" aria-hidden="true">
-  <div class="aurora-blob ab1"></div>
-  <div class="aurora-blob ab2"></div>
-  <div class="aurora-blob ab3"></div>
-</div>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-brand" onclick="go('home')" role="button" tabindex="0">
-    <div class="nav-mark">P</div>
-    <span class="nav-name">Pollux</span>
-    <span class="nav-pill"><span class="live-dot"></span>LIVE</span>
-  </div>
-  <ul class="nav-links">
-    <li><a onclick="go('home')"  id="nl-home"  class="on">Home</a></li>
-    <li><a onclick="go('polls')" id="nl-polls">Polls</a></li>
-    <li><a onclick="go('lb')"    id="nl-lb">Leaderboard</a></li>
-    <li><a onclick="go('rg')"    id="nl-rg">Regions</a></li>
-    <li><a onclick="go('about')" id="nl-about">About</a></li>
-  </ul>
-  <button class="nav-cta" onclick="go('polls')">Cast Your Vote</button>
-  <button class="hbg" id="hbg" onclick="toggleMnav()" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="mnav" id="mnav">
-  <a onclick="go('home');closeMnav()"  id="mn-home"  class="on">Home</a>
-  <a onclick="go('polls');closeMnav()" id="mn-polls">Polls</a>
-  <a onclick="go('lb');closeMnav()"    id="mn-lb">Leaderboard</a>
-  <a onclick="go('rg');closeMnav()"    id="mn-rg">Regions</a>
-  <a onclick="go('about');closeMnav()" id="mn-about">About</a>
-</div>
-
-<main>
-
-<!-- ════════════════ HOME ════════════════ -->
-<div class="page on" id="pg-home">
-
-  <div class="home-hero">
-    <div class="hero-eyebrow">
-      <span class="live-dot"></span>
-      Real-time · Anonymous · Grassroots
+    <!-- AURORA -->
+    <div class="aurora" aria-hidden="true">
+        <div class="aurora-blob ab1"></div>
+        <div class="aurora-blob ab2"></div>
+        <div class="aurora-blob ab3"></div>
     </div>
-    <h1 class="hero-title">What does<br>Nigeria <em>really</em><br>think?</h1>
-    <p class="hero-sub">Anonymous real-time political sentiment from Nigerians. No account, no agenda. Vote on presidents, governors, senators — and say why.</p>
-    <div class="hero-actions">
-      <button class="btn-primary" onclick="go('polls')">Vote Now</button>
-      <button class="btn-ghost"   onclick="go('lb')">View Rankings →</button>
-    </div>
-  </div>
 
-  <!-- LIVE COUNTER -->
-  <div class="live-banner">
-    <div class="lbc">
-      <div class="lbc-main">
-        <div class="lbc-label"><span class="live-dot"></span>Live Vote Count</div>
-        <div class="lbc-num" id="lbc-n"><em>0</em></div>
-        <div class="lbc-sub" id="lbc-sub">Be the first to vote — recorded anonymously on your device</div>
-      </div>
-      <div class="lbc-stats">
-        <div class="lbc-stat"><div class="lbc-stat-n" id="st-pols">0</div><div class="lbc-stat-l">Politicians</div></div>
-        <div class="lbc-stat"><div class="lbc-stat-n" id="st-yours">0</div><div class="lbc-stat-l">Your Votes</div></div>
-        <div class="lbc-stat"><div class="lbc-stat-n" id="st-cmts">0</div><div class="lbc-stat-l">Comments</div></div>
-        <div class="lbc-stat"><div class="lbc-stat-n">36</div><div class="lbc-stat-l">States</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRENDING -->
-  <section class="home-sec">
-    <div class="sec-hd">
-      <div>
-        <div class="eyebrow">Trending Now</div>
-        <h2 class="sec-title">Most Active Politicians</h2>
-      </div>
-      <span class="sec-lnk" onclick="go('polls')">See all →</span>
-    </div>
-    <div class="g3" id="g-trend"></div>
-  </section>
-
-  <div class="divider-txt">Most Polarising</div>
-
-  <!-- POLARISING -->
-  <section class="home-sec">
-    <div class="sec-hd">
-      <div>
-        <div class="eyebrow">Divided Opinion</div>
-        <h2 class="sec-title">Most Debated</h2>
-      </div>
-      <span class="sec-lnk" onclick="go('polls')">See all →</span>
-    </div>
-    <div class="g3" id="g-polar"></div>
-  </section>
-
-</div>
-
-<!-- ════════════════ POLLS ════════════════ -->
-<div class="page" id="pg-polls">
-
-  <div class="polls-head">
-    <h1 class="page-title">All Politicians</h1>
-    <p class="page-sub">36 state governors, key senators &amp; national figures. Vote + comment anonymously.</p>
-    <div class="filter-row">
-      <div class="sbox">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="search" class="sin" id="srch" placeholder="Search…" oninput="rPolls()" aria-label="Search politicians">
-      </div>
-      <!-- Type filters -->
-      <button class="fbtn on" onclick="setF('all',this)">All</button>
-      <button class="fbtn"    onclick="setF('National',this)">National</button>
-      <button class="fbtn"    onclick="setF('Governor',this)">Governors</button>
-      <button class="fbtn"    onclick="setF('Senator',this)">Senators</button>
-      <!-- Party -->
-      <select class="sel-filter" id="sel-party" onchange="rPolls()" aria-label="Filter by party">
-        <option value="">All Parties</option>
-        <option>APC</option><option>PDP</option>
-        <option>Labour</option><option>NNPP</option><option>APGA</option>
-      </select>
-      <!-- Region -->
-      <select class="sel-filter" id="sel-region" onchange="rPolls()" aria-label="Filter by region">
-        <option value="">All Regions</option>
-        <option>Southwest</option><option>Southeast</option>
-        <option>South-South</option><option>Northwest</option>
-        <option>Northeast</option><option>North Central</option>
-      </select>
-      <!-- Sort -->
-      <select class="sel-filter" id="sel-sort" onchange="rPolls()" aria-label="Sort by">
-        <option value="trending">Trending</option>
-        <option value="supported">Most Supported</option>
-        <option value="opposed">Most Opposed</option>
-        <option value="polarising">Polarising</option>
-        <option value="alpha">A → Z</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- YOUR VOTES STRIP (shown when user has votes) -->
-  <div class="your-votes" id="yv-wrap" style="display:none">
-    <div class="yv-card">
-      <div class="yv-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Your Votes <span style="font-size:11px;font-weight:400;color:var(--mu2)" id="yv-count"></span>
-      </div>
-      <div class="yv-pills" id="yv-pills"></div>
-    </div>
-  </div>
-
-  <div class="polls-body">
-    <div>
-      <div class="polls-count" id="polls-count"><span>0</span> politicians shown</div>
-      <div class="pgrid" id="pgrid"></div>
-    </div>
-    <!-- SIDEBAR -->
-    <aside class="polls-sidebar">
-      <div class="sidebar-card">
-        <div class="sidebar-title">
-          <span class="live-dot"></span>Live Pulse
+    <!-- NAV -->
+    <nav>
+        <div class="nav-brand" onclick="go('home')" role="button" tabindex="0">
+            <div class="nav-mark">P</div>
+            <span class="nav-name">Pollux</span>
+            <span class="nav-pill"><span class="live-dot"></span>LIVE</span>
         </div>
-        <div id="sb-top5"></div>
-      </div>
-      <div class="sidebar-card">
-        <div class="sidebar-title">Platform Stats</div>
-        <div class="sb-row"><span class="sb-name">Total Votes</span><span class="sb-val" id="sb-total">0</span></div>
-        <div class="sb-row"><span class="sb-name">Politicians</span><span class="sb-val" id="sb-pols">0</span></div>
-        <div class="sb-row"><span class="sb-name">Comments</span><span class="sb-val" id="sb-cmts">0</span></div>
-        <div class="sb-row"><span class="sb-name">Your Votes</span><span class="sb-val" id="sb-yours">0</span></div>
-      </div>
-    </aside>
-  </div>
-
-</div>
-
-<!-- ════════════════ LEADERBOARD ════════════════ -->
-<div class="page" id="pg-lb">
-  <div class="lb-wrap">
-    <h1 class="page-title">Leaderboard</h1>
-    <p class="page-sub">Ranked by grassroots sentiment across all politicians on Pollux.</p>
-    <div class="lb-tabs">
-      <button class="lb-tab on" onclick="setLb('support',this)">Most Supported</button>
-      <button class="lb-tab"    onclick="setLb('oppose',this)">Most Opposed</button>
-      <button class="lb-tab"    onclick="setLb('votes',this)">Most Voted</button>
+        <ul class="nav-links">
+            <li><a onclick="go('home')" id="nl-home" class="on">Home</a></li>
+            <li><a onclick="go('polls')" id="nl-polls">Polls</a></li>
+            <li><a onclick="go('lb')" id="nl-lb">Leaderboard</a></li>
+            <li><a onclick="go('rg')" id="nl-rg">Regions</a></li>
+            <li><a onclick="go('about')" id="nl-about">About</a></li>
+        </ul>
+        <button class="nav-cta" onclick="go('polls')">Cast Your Vote</button>
+        <button class="hbg" id="hbg" onclick="toggleMnav()" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+    <div class="mnav" id="mnav">
+        <a onclick="go('home');closeMnav()" id="mn-home" class="on">Home</a>
+        <a onclick="go('polls');closeMnav()" id="mn-polls">Polls</a>
+        <a onclick="go('lb');closeMnav()" id="mn-lb">Leaderboard</a>
+        <a onclick="go('rg');closeMnav()" id="mn-rg">Regions</a>
+        <a onclick="go('about');closeMnav()" id="mn-about">About</a>
     </div>
-    <div class="lb-list" id="lblist"></div>
-  </div>
-</div>
 
-<!-- ════════════════ REGIONS ════════════════ -->
-<div class="page" id="pg-rg">
-  <div class="rg-wrap">
-    <h1 class="page-title">Regional Breakdown</h1>
-    <p class="page-sub">Sentiment across Nigeria's six geopolitical zones, weighted by regional voter patterns.</p>
-    <div class="rg-grid" id="rggrid"></div>
-  </div>
-</div>
+    <main>
 
-<!-- ════════════════ ABOUT ════════════════ -->
-<div class="page" id="pg-about">
-  <div class="ab-wrap">
-    <h1 class="page-title">About Pollux</h1>
-    <p class="page-sub">An anonymous, grassroots political sentiment platform built for Nigerian voters.</p>
-    <div class="ab-grid">
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-        <h3 class="ab-ct">100% Anonymous</h3>
-        <p class="ab-cb">No accounts, no emails. All votes and comments stored only on your device. Zero personal data collected.</p>
-      </div>
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <h3 class="ab-ct">Comment System</h3>
-        <p class="ab-cb">Beyond binary votes — share why you support or oppose a politician. Comments are anonymous and public.</p>
-      </div>
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-        <h3 class="ab-ct">Real-Time Results</h3>
-        <p class="ab-cb">Rankings, trending politicians, and regional patterns update instantly as you vote.</p>
-      </div>
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10A15.3 15.3 0 018 12a15.3 15.3 0 014-10z"/></svg></div>
-        <h3 class="ab-ct">All 36 States</h3>
-        <p class="ab-cb">Every governor tracked. Sentiment broken down across Nigeria's six geopolitical zones.</p>
-      </div>
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 16v-4M12 8h.01"/></svg></div>
-        <h3 class="ab-ct">AI Briefings</h3>
-        <p class="ab-cb">Tap "Ask AI" on any card to copy a structured prompt — paste into Claude.ai or ChatGPT for a current politician briefing.</p>
-      </div>
-      <div class="ab-card">
-        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3 class="ab-ct">Manipulation-Resistant</h3>
-        <p class="ab-cb">Rate-limiting and transparent public counts make gaming results difficult. All data is auditable.</p>
-      </div>
-    </div>
-    <div class="ab-note">
-      <h3 class="ab-nt">A note on this platform</h3>
-      <p>Pollux does not predict election outcomes. It is an opinion tracker — a pulse check on public sentiment from users who choose to participate, which may not represent the broader Nigerian electorate.</p>
-      <p>Politician information is sourced from publicly available records. Pollux is independent and non-partisan with no affiliation to INEC or any political party.</p>
-    </div>
-  </div>
-</div>
+        <!-- ════════════════ HOME ════════════════ -->
+        <div class="page on" id="pg-home">
 
-</main>
-
-<!-- TOAST -->
-<div class="toast" id="toast" role="status" aria-live="polite">
-  <span class="toast-pip" id="tpip"></span>
-  <span id="ttxt">Saved</span>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     DATA + LOGIC
-═══════════════════════════════════════════════════════ -->
-<script>
-'use strict';
-
-/* ══════════════════════════════════════════
-   POLITICIAN DATA
-   All 36 governors + key senators + national figures
-   seeds: {s:0, o:0} → votes start at ZERO
-   type: 'National' | 'Governor' | 'Senator'
-══════════════════════════════════════════ */
-const POLS = [
-  // PRESIDENT & VP
-  {id:'bat',  name:'Bola Ahmed Tinubu',     abbr:'BAT', party:'APC',   type:'National', role:'President of Nigeria',           state:'Lagos',      region:'Southwest',    color:'#84cc16',
-   bio:'Incumbent President since May 2023. Former two-term Governor of Lagos (1999–2007). Principal architect of the APC merger.',seeds:{s:0,o:0}},
-  {id:'kash', name:'Kashim Shettima',       abbr:'KS',  party:'APC',   type:'National', role:'Vice President',                 state:'Borno',      region:'Northeast',    color:'#3b82f6',
-   bio:'VP since 2023. Former two-term Governor of Borno. Economist and banking professional who governed during the Boko Haram insurgency peak.',seeds:{s:0,o:0}},
-  // PRESIDENTIAL / NATIONAL
-  {id:'atiku',name:'Atiku Abubakar',        abbr:'AA',  party:'PDP',   type:'National', role:'Former Vice President',          state:'Adamawa',    region:'Northeast',    color:'#ef4444',
-   bio:"Six-time presidential candidate and former VP under Obasanjo (1999–2007). Prominent businessman and PDP's most persistent flag-bearer.",seeds:{s:0,o:0}},
-  {id:'obi',  name:'Peter Obi',             abbr:'PO',  party:'Labour',type:'National', role:'Former Governor, Anambra',       state:'Anambra',    region:'Southeast',    color:'#f59e0b',
-   bio:'2023 presidential candidate who ignited the mass "Obidient" youth movement. Former Governor of Anambra (2006–2014). Known for fiscal discipline.',seeds:{s:0,o:0}},
-  {id:'kwank',name:'Rabiu Kwankwaso',       abbr:'RK',  party:'NNPP',  type:'National', role:'Former Governor / Senator',      state:'Kano',       region:'Northwest',    color:'#a78bfa',
-   bio:'Leader of the powerful Kwankwasiyya movement. Former Governor of Kano twice, former Minister of Defence, NNPP 2023 presidential candidate.',seeds:{s:0,o:0}},
-  {id:'osin', name:'Yemi Osinbajo',         abbr:'YO',  party:'APC',   type:'National', role:'Former Vice President',          state:'Lagos',      region:'Southwest',    color:'#06b6d4',
-   bio:'Former VP under Buhari (2015–2023). Senior Advocate of Nigeria (SAN), pastor, and former Lagos AG. One of Nigeria\'s most respected technocrats.',seeds:{s:0,o:0}},
-  {id:'fal',  name:'Femi Falana',           abbr:'FF',  party:'Independent',type:'National', role:'Human Rights Lawyer (SAN)',state:'Lagos',      region:'Southwest',    color:'#2dd4bf',
-   bio:"Nigeria's most prominent human rights lawyer and labour rights activist. Senior Advocate who has been a fearless government critic for three decades.",seeds:{s:0,o:0}},
-  {id:'sar',  name:'Bukola Saraki',         abbr:'BS',  party:'PDP',   type:'National', role:'Former Senate President',        state:'Kwara',      region:'North Central',color:'#60a5fa',
-   bio:'Former President of the Nigerian Senate (2015–2019) and former Governor of Kwara. His 30-year family dynasty was ended by AbdulRazaq\'s "O To Ge" movement.',seeds:{s:0,o:0}},
-  {id:'elf',  name:'Nasir el-Rufai',        abbr:'NR',  party:'APC',   type:'National', role:'Former Kaduna Governor',         state:'Kaduna',     region:'Northwest',    color:'#e879f9',
-   bio:'Former Governor of Kaduna (2015–2023) and former FCT Minister. Known for controversial governance style, urban renewal projects, and blunt commentary.',seeds:{s:0,o:0}},
-  {id:'wike', name:'Nyesom Wike',           abbr:'NW',  party:'PDP',   type:'National', role:'FCT Minister',                   state:'Rivers',     region:'South-South',  color:'#ec4899',
-   bio:'FCT Minister since 2023. Former two-term Governor of Rivers. Known for aggressive infrastructure delivery and high-stakes political brinkmanship.',seeds:{s:0,o:0}},
-  {id:'ame',  name:'Rotimi Amaechi',        abbr:'RA',  party:'APC',   type:'National', role:'Former Minister of Transportation',state:'Rivers',   region:'South-South',  color:'#84cc16',
-   bio:'Former Speaker of Rivers SOHA, two-term Governor of Rivers, and Minister of Transportation under Buhari.',seeds:{s:0,o:0}},
-  {id:'dat',  name:'Datti Baba-Ahmed',      abbr:'DB',  party:'Labour',type:'National', role:'2023 VP Candidate',              state:'Kaduna',     region:'Northwest',    color:'#34d399',
-   bio:"Peter Obi's 2023 running mate. Academic, entrepreneur, and former Senator for Zaria. Outspoken post-election campaigner for electoral reform.",seeds:{s:0,o:0}},
-  // SENATE LEADERS
-  {id:'akp',  name:'Godswill Akpabio',      abbr:'GA',  party:'APC',   type:'Senator',  role:'Senate President',              state:'Akwa Ibom',  region:'South-South',  color:'#fb923c',
-   bio:"Senate President since 2023. Former Governor of Akwa Ibom (2007–2015) and Niger Delta Affairs Minister. Nigeria's most senior legislative official.",seeds:{s:0,o:0}},
-  {id:'jib',  name:'Barau Jibrin',          abbr:'BJ',  party:'APC',   type:'Senator',  role:'Deputy Senate President',       state:'Kano',       region:'Northwest',    color:'#a78bfa',
-   bio:'Deputy Senate President since 2023. Economist representing Kiru/Bebeji in Kano. Senior APC legislator with influence over budget processes.',seeds:{s:0,o:0}},
-  {id:'kalu', name:'Orji Uzor Kalu',        abbr:'OUK', party:'APC',   type:'Senator',  role:'Senate Chief Whip',             state:'Abia',       region:'Southeast',    color:'#fbbf24',
-   bio:'Senate Chief Whip and former Governor of Abia State (1999–2007). Media mogul and businessman with a complex political and legal history.',seeds:{s:0,o:0}},
-  {id:'nwoko',name:'Ned Nwoko',             abbr:'NN',  party:'PDP',   type:'Senator',  role:'Senator, Delta North',          state:'Delta',      region:'South-South',  color:'#4ade80',
-   bio:'Senator for Delta North and billionaire businessman. Known internationally for his campaign to repatriate African artefacts.',seeds:{s:0,o:0}},
-  // SOUTHWEST GOVERNORS
-  {id:'sanwo',name:'Babajide Sanwo-Olu',    abbr:'BSO', party:'APC',   type:'Governor', role:'Lagos Governor',                state:'Lagos',      region:'Southwest',    color:'#10b981',
-   bio:"Two-term Governor of Lagos since 2019. Business executive overseeing Nigeria's commercial capital — transport, infrastructure, and tech hub development.",seeds:{s:0,o:0}},
-  {id:'mak',  name:'Seyi Makinde',          abbr:'SGM', party:'PDP',   type:'Governor', role:'Oyo Governor',                  state:'Oyo',        region:'Southwest',    color:'#f97316',
-   bio:'Two-term Governor of Oyo since 2019. Engineer and businessman behind free education, free healthcare, and major road infrastructure programmes.',seeds:{s:0,o:0}},
-  {id:'abiod',name:'Dapo Abiodun',          abbr:'DA',  party:'APC',   type:'Governor', role:'Ogun Governor',                 state:'Ogun',       region:'Southwest',    color:'#818cf8',
-   bio:'Two-term Governor of Ogun since 2019. Focused on industrialisation, the Ogun-Guangdong Free Trade Zone, and infrastructure.',seeds:{s:0,o:0}},
-  {id:'adlk', name:'Ademola Adeleke',       abbr:'AA2', party:'PDP',   type:'Governor', role:'Osun Governor',                 state:'Osun',       region:'Southwest',    color:'#f472b6',
-   bio:'Governor of Osun since 2022. Known as the "Dancing Senator" and uncle of Davido. Former Senator for Osun West. Brought PDP back to Osun.',seeds:{s:0,o:0}},
-  {id:'oye',  name:'Biodun Oyebanji',       abbr:'BO',  party:'APC',   type:'Governor', role:'Ekiti Governor',                state:'Ekiti',      region:'Southwest',    color:'#67e8f9',
-   bio:'Governor of Ekiti since 2022. Former APC Deputy National Chairman. Focused on education reform, civil service modernisation.',seeds:{s:0,o:0}},
-  {id:'aiy',  name:'Lucky Aiyedatiwa',      abbr:'LA',  party:'APC',   type:'Governor', role:'Ondo Governor',                 state:'Ondo',       region:'Southwest',    color:'#86efac',
-   bio:'Governor of Ondo since December 2023, succeeding the late Akeredolu. Re-elected November 2024. Focused on oil-producing region development.',seeds:{s:0,o:0}},
-  // SOUTHEAST GOVERNORS
-  {id:'sol',  name:'Chukwuma Soludo',       abbr:'CS',  party:'APGA',  type:'Governor', role:'Anambra Governor',              state:'Anambra',    region:'Southeast',    color:'#14b8a6',
-   bio:'Governor of Anambra since 2022 and former CBN Governor (2004–2009). Professor of Economics who implemented the landmark naira redesign.',seeds:{s:0,o:0}},
-  {id:'otti', name:'Alex Otti',             abbr:'AO2', party:'Labour',type:'Governor', role:'Abia Governor',                 state:'Abia',       region:'Southeast',    color:'#fde047',
-   bio:"Governor of Abia since 2023 and former CEO of Diamond Bank. Labour Party's first Southeast governor — known for anti-corruption stance.",seeds:{s:0,o:0}},
-  {id:'mbah', name:'Peter Mbah',            abbr:'PM',  party:'PDP',   type:'Governor', role:'Enugu Governor',                state:'Enugu',      region:'Southeast',    color:'#a3e635',
-   bio:"Governor of Enugu since 2023. Businessman who pledged to grow Enugu's GDP from $4.4B to $30B through private sector investment.",seeds:{s:0,o:0}},
-  {id:'uzod', name:'Hope Uzodimma',         abbr:'HU',  party:'APC',   type:'Governor', role:'Imo Governor',                  state:'Imo',        region:'Southeast',    color:'#fb7185',
-   bio:'Governor of Imo since 2020 via Supreme Court order. Re-elected 2023. APC\'s foothold in the Southeast — a highly contested political figure.',seeds:{s:0,o:0}},
-  {id:'nwi',  name:'Francis Nwifuru',       abbr:'FN',  party:'APC',   type:'Governor', role:'Ebonyi Governor',               state:'Ebonyi',     region:'Southeast',    color:'#38bdf8',
-   bio:'Governor of Ebonyi since 2023, succeeding Dave Umahi who became Works Minister. Former Speaker of the Ebonyi State House of Assembly.',seeds:{s:0,o:0}},
-  // SOUTH-SOUTH GOVERNORS
-  {id:'fub',  name:'Siminalayi Fubara',     abbr:'SF',  party:'PDP',   type:'Governor', role:'Rivers Governor',               state:'Rivers',     region:'South-South',  color:'#4ade80',
-   bio:'Governor of Rivers since 2023. Former Accountant-General. At the centre of a high-profile power struggle with FCT Minister Wike.',seeds:{s:0,o:0}},
-  {id:'obo',  name:'Sheriff Oborevwori',    abbr:'SO',  party:'PDP',   type:'Governor', role:'Delta Governor',                state:'Delta',      region:'South-South',  color:'#c084fc',
-   bio:'Governor of Delta since 2023. Former SOHA Speaker. Continuing the Okowa infrastructure development agenda.',seeds:{s:0,o:0}},
-  {id:'diri', name:'Douye Diri',            abbr:'DD',  party:'PDP',   type:'Governor', role:'Bayelsa Governor',              state:'Bayelsa',    region:'South-South',  color:'#fdba74',
-   bio:'Governor of Bayelsa since 2020. His election was decided by Supreme Court. Former senator continuing PDP\'s grip on Bayelsa.',seeds:{s:0,o:0}},
-  {id:'okp',  name:'Monday Okpebholo',      abbr:'MO',  party:'APC',   type:'Governor', role:'Edo Governor',                  state:'Edo',        region:'South-South',  color:'#7dd3fc',
-   bio:'Governor of Edo since November 2024. Won the September 2024 election for APC, ending PDP\'s eight-year hold on Edo State.',seeds:{s:0,o:0}},
-  {id:'otu',  name:'Bassey Otu',            abbr:'BO2', party:'APC',   type:'Governor', role:'Cross River Governor',          state:'Cross River',region:'South-South',  color:'#6ee7b7',
-   bio:'Governor of Cross River since 2023. Pharmacist and former senator focused on Calabar\'s tourism heritage and agriculture.',seeds:{s:0,o:0}},
-  {id:'eno',  name:'Umo Eno',               abbr:'UE',  party:'PDP',   type:'Governor', role:'Akwa Ibom Governor',            state:'Akwa Ibom',  region:'South-South',  color:'#d946ef',
-   bio:"Governor of Akwa Ibom since 2023. Pastor and former Lands Commissioner. Continuing PDP's unbroken hold on Akwa Ibom.",seeds:{s:0,o:0}},
-  // NORTHWEST GOVERNORS
-  {id:'aby',  name:'Abba Kabir Yusuf',      abbr:'AKY', party:'NNPP',  type:'Governor', role:'Kano Governor',                 state:'Kano',       region:'Northwest',    color:'#a78bfa',
-   bio:"Governor of Kano since 2023. Kwankwasiyya movement product. Defeated the APC incumbent in a landmark upset reflecting the movement's force.",seeds:{s:0,o:0}},
-  {id:'uba',  name:'Uba Sani',              abbr:'US',  party:'APC',   type:'Governor', role:'Kaduna Governor',               state:'Kaduna',     region:'Northwest',    color:'#22d3ee',
-   bio:'Governor of Kaduna since 2023, succeeding el-Rufai. Former Senator for Kaduna Central. Focused on security and post-el-Rufai reconciliation.',seeds:{s:0,o:0}},
-  {id:'rad',  name:'Dikko Radda',           abbr:'DR',  party:'APC',   type:'Governor', role:'Katsina Governor',              state:'Katsina',    region:'Northwest',    color:'#fb923c',
-   bio:"Governor of Katsina since 2023. Former SMEDAN Director-General. From Buhari's home state, focused on security in the banditry-prone northwest.",seeds:{s:0,o:0}},
-  {id:'law',  name:'Dauda Lawal',           abbr:'DL',  party:'PDP',   type:'Governor', role:'Zamfara Governor',              state:'Zamfara',    region:'Northwest',    color:'#f87171',
-   bio:'Governor of Zamfara since 2023. Former banker leading one of Nigeria\'s most security-challenged states amid a severe banditry crisis.',seeds:{s:0,o:0}},
-  {id:'idris',name:'Nasir Idris',           abbr:'NI',  party:'APC',   type:'Governor', role:'Kebbi Governor',                state:'Kebbi',      region:'Northwest',    color:'#4ade80',
-   bio:"Governor of Kebbi since 2023. Focused on agriculture — Kebbi is Nigeria's leading rice-producing state and a key food security zone.",seeds:{s:0,o:0}},
-  {id:'ali',  name:'Ahmed Aliyu',           abbr:'AA3', party:'APC',   type:'Governor', role:'Sokoto Governor',               state:'Sokoto',     region:'Northwest',    color:'#fcd34d',
-   bio:"Governor of Sokoto since 2023, ending the Tambuwal dynasty. Governing Nigeria's ancient Caliphate city and its sultanate tradition.",seeds:{s:0,o:0}},
-  {id:'nam',  name:'Umar Namadi',           abbr:'UN',  party:'APC',   type:'Governor', role:'Jigawa Governor',               state:'Jigawa',     region:'Northwest',    color:'#a3e635',
-   bio:'Governor of Jigawa since 2023. Former Deputy Governor. Focused on agriculture, education, and rural development in this predominantly agrarian state.',seeds:{s:0,o:0}},
-  // NORTHEAST GOVERNORS
-  {id:'zulum',name:'Babagana Zulum',        abbr:'BZ',  party:'APC',   type:'Governor', role:'Borno Governor',                state:'Borno',      region:'Northeast',    color:'#34d399',
-   bio:"Two-term Governor of Borno since 2019. Professor and engineer widely praised for personal bravery visiting insurgency-hit communities.",seeds:{s:0,o:0}},
-  {id:'fint', name:'Ahmadu Fintiri',        abbr:'AF',  party:'PDP',   type:'Governor', role:'Adamawa Governor',              state:'Adamawa',    region:'Northeast',    color:'#f472b6',
-   bio:'Two-term Governor of Adamawa since 2019. Former SOHA Speaker. Focused on IDPs, peace building, and agriculture.',seeds:{s:0,o:0}},
-  {id:'buni', name:'Mai Mala Buni',         abbr:'MMB', party:'APC',   type:'Governor', role:'Yobe Governor',                 state:'Yobe',       region:'Northeast',    color:'#818cf8',
-   bio:'Two-term Governor of Yobe since 2019 and former APC Caretaker Committee Chairman. Close Tinubu ally.',seeds:{s:0,o:0}},
-  {id:'inuwa',name:'Inuwa Yahaya',          abbr:'IY',  party:'APC',   type:'Governor', role:'Gombe Governor',                state:'Gombe',      region:'Northeast',    color:'#67e8f9',
-   bio:"Two-term Governor of Gombe since 2019. Civil engineer and former legislator with a THUMBS development agenda.",seeds:{s:0,o:0}},
-  {id:'bala', name:'Bala Mohammed',         abbr:'BM',  party:'PDP',   type:'Governor', role:'Bauchi Governor',               state:'Bauchi',     region:'Northeast',    color:'#f97316',
-   bio:"Two-term Governor of Bauchi since 2019. Former FCT Minister. Known for outspoken criticism of Tinubu's economic policies.",seeds:{s:0,o:0}},
-  {id:'kef',  name:'Agbu Kefas',            abbr:'AK',  party:'PDP',   type:'Governor', role:'Taraba Governor',               state:'Taraba',     region:'Northeast',    color:'#c084fc',
-   bio:"Governor of Taraba since 2023. Military officer-turned-politician governing the diverse 'Nature's Gift' state.",seeds:{s:0,o:0}},
-  // NORTH CENTRAL GOVERNORS
-  {id:'bago', name:'Mohammed Bago',         abbr:'MB',  party:'APC',   type:'Governor', role:'Niger Governor',                state:'Niger',      region:'North Central',color:'#86efac',
-   bio:"Governor of Niger since 2023. Nigeria's largest state by land area — home to Kainji and Shiroro hydroelectric dams.",seeds:{s:0,o:0}},
-  {id:'ododo',name:'Ahmed Ododo',           abbr:'AOD', party:'APC',   type:'Governor', role:'Kogi Governor',                 state:'Kogi',       region:'North Central',color:'#fde047',
-   bio:'Governor of Kogi since January 2024, succeeding Yahaya Bello who faces EFCC charges. Former Auditor-General of Kogi.',seeds:{s:0,o:0}},
-  {id:'alia', name:'Hyacinth Alia',         abbr:'HA',  party:'APC',   type:'Governor', role:'Benue Governor',                state:'Benue',      region:'North Central',color:'#7dd3fc',
-   bio:"Governor of Benue since 2023. Rare Catholic priest-turned-governor. Governing amid Nigeria's most severe farmer-herder conflict crisis.",seeds:{s:0,o:0}},
-  {id:'mut',  name:'Caleb Mutfwang',        abbr:'CM',  party:'PDP',   type:'Governor', role:'Plateau Governor',              state:'Plateau',    region:'North Central',color:'#d946ef',
-   bio:'Governor of Plateau since 2023. Lawyer and former LGA chairman. Leading Plateau through intense religious and ethnic violence.',seeds:{s:0,o:0}},
-  {id:'razaq',name:'AbdulRahman AbdulRazaq',abbr:'AR',  party:'APC',   type:'Governor', role:'Kwara Governor',                state:'Kwara',      region:'North Central',color:'#38bdf8',
-   bio:"Two-term Governor of Kwara since 2019. His 'O To Ge' movement ended the Saraki family's 30-year political dynasty in the state.",seeds:{s:0,o:0}},
-  {id:'sule', name:'Abdullahi Sule',        abbr:'AS',  party:'APC',   type:'Governor', role:'Nasarawa Governor',             state:'Nasarawa',   region:'North Central',color:'#fb923c',
-   bio:'Two-term Governor of Nasarawa since 2019. Engineer and entrepreneur. Nasarawa borders Abuja FCT — a growing satellite economy.',seeds:{s:0,o:0}},
-];
-
-/* ══════════════════════════════════════════
-   REGIONAL ZONES
-══════════════════════════════════════════ */
-const ZONES = [
-  {name:'Southwest',    states:'Lagos, Ogun, Oyo, Osun, Ekiti, Ondo',
-   pols:['obi','osin','fal','mak','sanwo','bat','abiod','adlk','oye','aiy']},
-  {name:'Southeast',    states:'Anambra, Enugu, Imo, Abia, Ebonyi',
-   pols:['obi','sol','otti','dat','mbah','uzod','nwi','kalu']},
-  {name:'South-South',  states:'Rivers, Delta, Bayelsa, Edo, Cross River, Akwa Ibom',
-   pols:['wike','fub','akp','obo','diri','okp','otu','eno','obi']},
-  {name:'Northwest',    states:'Kano, Kaduna, Katsina, Zamfara, Kebbi, Sokoto, Jigawa',
-   pols:['kwank','aby','elf','kash','bat','uba','rad','law','idris','ali','nam']},
-  {name:'Northeast',    states:'Borno, Adamawa, Yobe, Gombe, Bauchi, Taraba',
-   pols:['kash','atiku','bat','obi','zulum','fint','buni','inuwa','bala','kef']},
-  {name:'North Central',states:'Kogi, Benue, Plateau, Kwara, Niger, Nasarawa, FCT',
-   pols:['sar','wike','bat','obi','osin','bago','ododo','alia','mut','razaq','sule']},
-];
-
-const RB = {
-  bat:{Southwest:1.2,Southeast:.45,'South-South':.65,Northwest:.85,Northeast:1.1,'North Central':.9},
-  obi:{Southwest:1.45,Southeast:2.4,'South-South':1.35,Northwest:.45,Northeast:.55,'North Central':1.05},
-  atiku:{Southwest:.7,Southeast:.55,'South-South':.75,Northwest:1.6,Northeast:2.1,'North Central':1.1},
-  osin:{Southwest:1.85,Southeast:1.25,'South-South':1.1,Northwest:1.0,Northeast:.9,'North Central':1.2},
-  mak:{Southwest:2.1,Southeast:1.1,'South-South':1.0,Northwest:.75,Northeast:.7,'North Central':.85},
-  kwank:{Southwest:.55,Southeast:.45,'South-South':.55,Northwest:2.3,Northeast:1.0,'North Central':.75},
-  wike:{Southwest:.75,Southeast:.9,'South-South':2.2,Northwest:.65,Northeast:.75,'North Central':.85},
-  kash:{Southwest:.65,Southeast:.35,'South-South':.55,Northwest:1.2,Northeast:2.2,'North Central':.9},
-  zulum:{Southwest:.6,Southeast:.5,'South-South':.6,Northwest:.9,Northeast:2.5,'North Central':.85},
-  fub:{Southwest:.8,Southeast:.85,'South-South':2.0,Northwest:.6,Northeast:.7,'North Central':.8},
-  sol:{Southwest:1.05,Southeast:2.5,'South-South':1.1,Northwest:.45,Northeast:.45,'North Central':.8},
-  otti:{Southwest:1.1,Southeast:2.4,'South-South':1.05,Northwest:.45,Northeast:.45,'North Central':.8},
-};
-
-/* ══════════════════════════════════════════
-   STORAGE (new keys = zero-start)
-   SK  = vote counts
-   UK  = user's own votes (which ones they cast)
-   CK  = comments
-   HK  = anonymous voter handle
-══════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-   🔑 SUPABASE CONFIG — PASTE YOUR KEYS BELOW
-   (You will fill these in after running the SQL)
-══════════════════════════════════════════ */
-const SUPABASE_URL  = 'https://vbpgfrqygehlmohvvtat.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZicGdmcnF5Z2VobG1vaHZ2dGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNzk3OTAsImV4cCI6MjA5MDY1NTc5MH0.N_l0oRFuvqstTCj6dXE14giFLhfYMBQeZ6jsFiYENLE';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-/* ══════════════════════════════════════════
-   LOCAL STORAGE KEYS (used as instant cache)
-══════════════════════════════════════════ */
-const SK='pollux_c1', UK='pollux_uv1', CK='pollux_cm1', HK='pollux_usr1', UID_KEY='pollux_uid';
-
-function getC() {
-  try { const d=localStorage.getItem(SK); if(d) return JSON.parse(d); } catch(e){}
-  const i={}; POLS.forEach(p=>{i[p.id]={s:0,o:0}}); saveC(i); return i;
-}
-function saveC(c) { try{localStorage.setItem(SK,JSON.stringify(c))}catch(e){} }
-function getUV()  { try{return JSON.parse(localStorage.getItem(UK)||'{}')}catch(e){return{}} }
-function saveUV(v){ try{localStorage.setItem(UK,JSON.stringify(v))}catch(e){} }
-function getCm()  { try{return JSON.parse(localStorage.getItem(CK)||'{}')}catch(e){return{}} }
-function saveCm(c){ try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){} }
-function getHandle() {
-  try {
-    let h = localStorage.getItem(HK);
-    if(h) return h;
-    const adj=['Candid','Astute','Civic','Vigilant','Informed','Earnest','Honest','Active'];
-    h = adj[Math.floor(Math.random()*adj.length)]+'_Voter'+Math.floor(Math.random()*9999);
-    localStorage.setItem(HK, h);
-    return h;
-  } catch(e){ return 'Anonymous_Voter'; }
-}
-function getUID() {
-  try {
-    let id = localStorage.getItem(UID_KEY);
-    if(id) return id;
-    id = 'anon_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
-    localStorage.setItem(UID_KEY, id);
-    return id;
-  } catch(e){ return 'anon_fallback'; }
-}
-
-/* ══════════════════════════════════════════
-   SUPABASE: Load all data from the cloud
-   (runs once when the page opens)
-══════════════════════════════════════════ */
-async function loadFromSupabase() {
-  try {
-    // 1. Load shared vote counts
-    const { data: votes, error: ve } = await db.from('poll_votes').select('*');
-    if (!ve && votes) {
-      const c = getC();
-      votes.forEach(row => {
-        c[row.politician_id] = { s: row.support_count||0, o: row.oppose_count||0 };
-      });
-      saveC(c);
-    }
-
-    // 2. Load this device's own votes (so the buttons show as already voted)
-    const { data: uVotes, error: uve } = await db
-      .from('poll_user_votes').select('*').eq('user_id', getUID());
-    if (!uve && uVotes) {
-      const uv = {};
-      uVotes.forEach(row => { uv[row.politician_id] = row.direction; });
-      saveUV(uv);
-    }
-
-    // 3. Load all comments
-    const { data: cmts, error: ce } = await db
-      .from('poll_comments').select('*').order('created_at', { ascending: true });
-    if (!ce && cmts) {
-      const cm = {};
-      cmts.forEach(row => {
-        if(!cm[row.politician_id]) cm[row.politician_id] = [];
-        cm[row.politician_id].push({
-          id: row.id,
-          voter: row.handle,
-          text: row.comment_text,
-          sentiment: row.direction || 'neutral',
-          ts: new Date(row.created_at).getTime()
-        });
-      });
-      saveCm(cm);
-    }
-
-    refresh(); // Re-draw the UI with live data
-  } catch(err) {
-    console.warn('Could not load from Supabase — showing local data:', err);
-    refresh();
-  }
-}
-
-/* ══════════════════════════════════════════
-   SUPABASE: Listen for live changes
-   (updates everyone's screen in real-time)
-══════════════════════════════════════════ */
-function subscribeRealtime() {
-  db.channel('pollux_live')
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'poll_votes' },
-      (payload) => {
-        // Someone else voted — update the counts on screen instantly
-        const row = payload.new;
-        if(!row || !row.politician_id) return;
-        const c = getC();
-        c[row.politician_id] = { s: row.support_count||0, o: row.oppose_count||0 };
-        saveC(c);
-        refresh();
-      }
-    )
-    .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'poll_comments' },
-      (payload) => {
-        // Someone posted a comment — show it live
-        const row = payload.new;
-        if(!row || !row.politician_id) return;
-        const cm = getCm();
-        if(!cm[row.politician_id]) cm[row.politician_id] = [];
-        const alreadyHere = cm[row.politician_id].some(c => c.id === row.id);
-        if(!alreadyHere) {
-          cm[row.politician_id].push({
-            id: row.id,
-            voter: row.handle,
-            text: row.comment_text,
-            sentiment: row.direction || 'neutral',
-            ts: new Date(row.created_at).getTime()
-          });
-          saveCm(cm);
-          refresh();
-        }
-      }
-    )
-    .subscribe();
-}
-
-/* ══════════════════════════════════════════
-   VOTE LOGIC (now saves to cloud)
-══════════════════════════════════════════ */
-async function castVote(pid, type) {
-  const c=getC(), uv=getUV(), prev=uv[pid];
-  if(!c[pid]) c[pid]={s:0,o:0};
-
-  // Step 1: Update instantly on THIS device (feels fast)
-  if(prev===type) {
-    c[pid][type]=Math.max(0,c[pid][type]-1);
-    delete uv[pid];
-    showToast('Vote removed','#666');
-  } else {
-    if(prev) c[pid][prev]=Math.max(0,c[pid][prev]-1);
-    c[pid][type]++;
-    uv[pid]=type;
-    showToast(type==='s'?'Support recorded 👍':'Opposition recorded 👎',type==='s'?'#84cc16':'#ef4444');
-  }
-  saveC(c); saveUV(uv); refresh();
-
-  // Step 2: Save to Supabase cloud so everyone else sees it
-  try {
-    await db.rpc('cast_vote', {
-      p_politician_id: pid,
-      p_user_id: getUID(),
-      p_direction: type
-    });
-  } catch(err) {
-    console.warn('Vote saved locally but cloud sync failed:', err);
-  }
-}
-
-async function addComment(pid, text) {
-  if(!text||!text.trim()) return;
-  const uv=getUV();
-  const handle = getHandle();
-  const commentText = text.trim().slice(0,280);
-  const sentiment = uv[pid]||'neutral';
-
-  // Step 1: Show on THIS device instantly
-  const cm=getCm();
-  if(!cm[pid]) cm[pid]=[];
-  cm[pid].push({
-    id: 'local_' + Date.now(),
-    voter: handle,
-    text: commentText,
-    sentiment: sentiment,
-    ts: Date.now()
-  });
-  saveCm(cm);
-  showToast('Comment posted ✓','#84cc16');
-  refresh();
-
-  // Step 2: Save to Supabase so everyone sees it
-  try {
-    await db.from('poll_comments').insert({
-      politician_id: pid,
-      user_id: getUID(),
-      handle: handle,
-      comment_text: commentText,
-      direction: sentiment === 'neutral' ? null : sentiment
-    });
-  } catch(err) {
-    console.warn('Comment saved locally but cloud sync failed:', err);
-  }
-}
-
-/* ══════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════ */
-function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
-function pct(s,o){const t=s+o;if(!t)return{sp:0,op:0};return{sp:Math.round(s/t*100),op:Math.round(o/t*100)}}
-function ini(name){return name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()}
-function timeAgo(ts){
-  const d=Date.now()-ts;
-  if(d<60000)return'just now';
-  if(d<3600000)return Math.floor(d/60000)+'m ago';
-  if(d<86400000)return Math.floor(d/3600000)+'h ago';
-  return Math.floor(d/86400000)+'d ago';
-}
-function tagClass(p){return{APC:'apc',PDP:'pdp','Labour':'lp','Labour Party':'lp',NNPP:'nnpp',APGA:'apga'}[p]||'indep'}
-function rpct(pid,zone){
-  const c=getC(),pol=POLS.find(p=>p.id===pid);if(!pol)return 50;
-  const cv=c[pid]||{s:0,o:0};const {sp}=pct(cv.s,cv.o);
-  const b=(RB[pid]&&RB[pid][zone])||1.0;
-  if(!cv.s&&!cv.o)return 40+Math.floor(Math.random()*22);
-  return Math.min(96,Math.max(4,Math.round(sp*b)));
-}
-function totalComments(){
-  const cm=getCm();
-  return Object.values(cm).reduce((a,arr)=>a+(arr?arr.length:0),0);
-}
-
-/* ══════════════════════════════════════════
-   RENDER: POLITICIAN CARD
-   Full card with vote bar, buttons, comments
-══════════════════════════════════════════ */
-// Track open comment forms
-const openForms={}, openComments={};
-
-function card(pol) {
-  const c=getC(), uv=getUV(), cm=getCm();
-  const cv=c[pol.id]||{s:0,o:0};
-  const {sp,op}=pct(cv.s,cv.o);
-  const voted=uv[pol.id], total=cv.s+cv.o;
-  const comments=cm[pol.id]||[];
-  const showForm=!!openForms[pol.id];
-  const showCmts=!!openComments[pol.id];
-  const barW=total===0?0:sp;
-
-  const commentsList=showCmts&&comments.length>0?`
-    <div class="comment-list">
-      ${comments.slice(-5).map(c=>`
-        <div class="comment-item">
-          <div class="comment-avatar">${c.voter.charAt(0)}</div>
-          <div class="comment-body">
-            <div class="comment-meta">
-              <span class="comment-voter">${c.voter}</span>
-              <span class="comment-time">${timeAgo(c.ts)}</span>
-              <span class="${c.sentiment==='s'?'comment-sent-up':'comment-sent-down'}">${c.sentiment==='s'?'↑ Support':'↓ Oppose'}</span>
+            <div class="home-hero">
+                <div class="hero-eyebrow">
+                    <span class="live-dot"></span>
+                    Real-time · Anonymous · Grassroots
+                </div>
+                <h1 class="hero-title">What does<br>Nigeria <em>really</em><br>think?</h1>
+                <p class="hero-sub">Anonymous real-time political sentiment from Nigerians. No account, no agenda. Vote
+                    on presidents, governors, senators — and say why.</p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="go('polls')">Vote Now</button>
+                    <button class="btn-ghost" onclick="go('lb')">View Rankings →</button>
+                </div>
             </div>
-            <p class="comment-text">${escHtml(c.text)}</p>
-          </div>
-        </div>
-      `).join('')}
-    </div>`:'' ;
 
-  const commentForm=showForm?`
-    <div class="comment-form">
-      <textarea class="comment-textarea" id="ctxt-${pol.id}" rows="3"
-        placeholder="Share your perspective on ${pol.name.split(' ')[0]}…"
-        oninput="document.getElementById('cc-${pol.id}').textContent=this.value.length+'/280'"
-        maxlength="280"></textarea>
-      <div class="comment-form-footer">
-        <span class="char-count" id="cc-${pol.id}">0/280</span>
-        <button class="comment-post-btn" onclick="doComment('${pol.id}')">Post</button>
-      </div>
-    </div>`:'' ;
-
-  return `<div class="pcard" id="pc-${pol.id}">
-    <div class="pcard-hd">
-      <div class="av" style="background:${pol.color}">${ini(pol.name)}</div>
-      <div class="pcard-info">
-        <div class="pcard-name" title="${pol.name}">${pol.name}</div>
-        <div class="pcard-tags">
-          <span class="tag ${tagClass(pol.party)}">${pol.party}</span>
-          <span class="tag type">${pol.type}</span>
-        </div>
-        <div class="pcard-role">${pol.role} · ${pol.state}</div>
-      </div>
-    </div>
-    <p class="pcard-bio">${pol.bio}</p>
-    <div class="vbar-wrap">
-      <div class="vbar-track"><div class="vbar-fill" style="width:${barW}%"></div></div>
-      <div class="vnums">
-        <span class="vn-s">${total===0?'No votes yet':fmt(cv.s)+' support'+(total>0?' · '+sp+'%':'')}</span>
-        <span class="vn-o">${total>0?fmt(cv.o)+' oppose':''}</span>
-      </div>
-    </div>
-    <div class="vbtns">
-      <button class="vbtn ${voted==='s'?'vs':''}" onclick="doVote('${pol.id}','s',event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-        ${voted==='s'?'Supported ✓':'Support'}
-      </button>
-      <button class="vbtn ${voted==='o'?'vo':''}" onclick="doVote('${pol.id}','o',event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
-        ${voted==='o'?'Opposed ✓':'Oppose'}
-      </button>
-    </div>
-    <div class="comment-divider">
-      <button class="comment-toggle" onclick="toggleComments('${pol.id}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        ${comments.length} comment${comments.length!==1?'s':''}
-      </button>
-      <button class="comment-add-btn" onclick="toggleForm('${pol.id}')">+ Add comment</button>
-    </div>
-    ${commentForm}
-    ${commentsList}
-    <button class="ai-btn" onclick="aiInfo('${pol.id}',event)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Ask AI about ${pol.name.split(' ')[0]}
-    </button>
-  </div>`;
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function doVote(pid,t,e){
-  e.stopPropagation();
-  const el=document.getElementById('pc-'+pid);
-  if(el){el.classList.add('blip');setTimeout(()=>el.classList.remove('blip'),200)}
-  castVote(pid,t);
-}
-function toggleComments(pid){
-  openComments[pid]=!openComments[pid];
-  refresh();
-}
-function toggleForm(pid){
-  openForms[pid]=!openForms[pid];
-  if(openForms[pid]) openComments[pid]=true;
-  refresh();
-  if(openForms[pid]){
-    setTimeout(()=>{const el=document.getElementById('ctxt-'+pid);if(el)el.focus()},50);
-  }
-}
-function doComment(pid){
-  const el=document.getElementById('ctxt-'+pid);
-  if(!el||!el.value.trim())return;
-  addComment(pid,el.value);
-  openForms[pid]=false;
-  openComments[pid]=true;
-}
-function aiInfo(pid,e){
-  e.stopPropagation();
-  const pol=POLS.find(p=>p.id===pid);if(!pol)return;
-  const prompt=`Give me a current, factual briefing on Nigerian politician ${pol.name} (${pol.role}, ${pol.party}). Include:
-1. Their current role and status as of today
-2. Most recent major news or political activity (last 3-6 months)  
-3. Biggest political achievement or legacy
-4. Current controversies or challenges they face
-5. Their public approval perception in Nigeria right now
-6. What they are likely to do politically in the next 12 months
-Be concise, factual, and neutral.`;
-  const copy=(txt)=>{
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(txt).then(()=>showToast('Prompt copied — paste into Claude.ai 🤖','#a78bfa')).catch(()=>fbCopy(txt));
-    } else fbCopy(txt);
-  };
-  copy(prompt);
-}
-function fbCopy(txt){
-  const el=document.createElement('textarea');el.value=txt;
-  el.style.cssText='position:fixed;opacity:0';document.body.appendChild(el);
-  el.focus();el.select();
-  try{document.execCommand('copy');showToast('Copied! Paste into Claude.ai 🤖','#a78bfa')}
-  catch(err){showToast('Could not copy — try again','#ef4444')}
-  document.body.removeChild(el);
-}
-
-/* ══════════════════════════════════════════
-   RENDER: HOME
-══════════════════════════════════════════ */
-function rHome(){
-  const c=getC(), uv=getUV();
-  const total=POLS.reduce((a,p)=>{const cv=c[p.id]||{s:0,o:0};return a+cv.s+cv.o},0);
-  const yvotes=Object.keys(uv).length;
-  const cmtsTotal=totalComments();
-
-  // Live counter
-  const n=document.getElementById('lbc-n');
-  if(n) n.innerHTML=`<em>${total===0?'0':fmt(total)}</em>`;
-  const sub=document.getElementById('lbc-sub');
-  if(sub) sub.textContent=total===0
-    ?'Be the first to vote — recorded anonymously on your device'
-    :`${total.toLocaleString()} vote${total!==1?'s':''} cast on Pollux`;
-
-  const stPols=document.getElementById('st-pols');if(stPols)stPols.textContent=POLS.length;
-  const stYours=document.getElementById('st-yours');if(stYours)stYours.textContent=yvotes;
-  const stCmts=document.getElementById('st-cmts');if(stCmts)stCmts.textContent=cmtsTotal;
-
-  // Trending — highest total votes
-  const byVol=[...POLS].sort((a,b)=>{
-    const ca=c[a.id]||{s:0,o:0},cb=c[b.id]||{s:0,o:0};
-    return(cb.s+cb.o)-(ca.s+ca.o);
-  });
-  const gt=document.getElementById('g-trend');
-  if(gt) gt.innerHTML=byVol.slice(0,3).map(card).join('');
-
-  // Polarising — closest to 50/50 split, exclude trending 3
-  const tIds=byVol.slice(0,3).map(p=>p.id);
-  const polar=[...POLS].filter(p=>!tIds.includes(p.id)).sort((a,b)=>{
-    const ca=c[a.id]||{s:0,o:0},cb=c[b.id]||{s:0,o:0};
-    const {sp:sa}=pct(ca.s,ca.o),{sp:sb}=pct(cb.s,cb.o);
-    return Math.abs(sa-50)-Math.abs(sb-50);
-  });
-  const gp=document.getElementById('g-polar');
-  if(gp) gp.innerHTML=polar.slice(0,3).map(card).join('');
-}
-
-/* ══════════════════════════════════════════
-   RENDER: POLLS
-══════════════════════════════════════════ */
-let AF='all';
-function setF(f,btn){
-  AF=f;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  rPolls();
-}
-function rPolls(){
-  const q=(document.getElementById('srch')?.value||'').toLowerCase().trim();
-  const party=(document.getElementById('sel-party')?.value||'').trim();
-  const region=(document.getElementById('sel-region')?.value||'').trim();
-  const sort=(document.getElementById('sel-sort')?.value||'trending');
-  const c=getC(), uv=getUV();
-
-  let list=[...POLS];
-  // Type filter
-  if(AF==='National')list=list.filter(p=>p.type==='National');
-  else if(AF==='Governor')list=list.filter(p=>p.type==='Governor');
-  else if(AF==='Senator')list=list.filter(p=>p.type==='Senator');
-  // Party filter
-  if(party)list=list.filter(p=>p.party===party);
-  // Region filter
-  if(region)list=list.filter(p=>p.region===region);
-  // Search
-  if(q)list=list.filter(p=>
-    p.name.toLowerCase().includes(q)||p.party.toLowerCase().includes(q)||
-    p.state.toLowerCase().includes(q)||p.role.toLowerCase().includes(q)||
-    p.region.toLowerCase().includes(q));
-  // Sort
-  list.sort((a,b)=>{
-    const ca=c[a.id]||{s:0,o:0},cb=c[b.id]||{s:0,o:0};
-    if(sort==='supported'){const{sp:sa}=pct(ca.s,ca.o),{sp:sb}=pct(cb.s,cb.o);return sb-sa}
-    if(sort==='opposed'){const{op:oa}=pct(ca.s,ca.o),{op:ob}=pct(cb.s,cb.o);return ob-oa}
-    if(sort==='polarising'){const{sp:sa}=pct(ca.s,ca.o),{sp:sb}=pct(cb.s,cb.o);return Math.abs(sa-50)-Math.abs(sb-50)}
-    if(sort==='alpha')return a.name.localeCompare(b.name);
-    return(cb.s+cb.o)-(ca.s+ca.o); // trending
-  });
-
-  const g=document.getElementById('pgrid');
-  const cnt=document.getElementById('polls-count');
-  if(cnt) cnt.innerHTML=`<span>${list.length}</span> politician${list.length!==1?'s':''} shown`;
-  if(g){
-    g.innerHTML=list.length?list.map(card).join(''):`
-      <div class="empty">
-        <div class="empty-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-        <p style="font-size:15px;margin-bottom:4px;font-weight:500">No politicians found</p>
-        <span style="font-size:12.5px;color:var(--mu3)">Try a different search or filter</span>
-      </div>`;
-  }
-
-  // Your votes strip
-  const votes=Object.entries(uv);
-  const yvwrap=document.getElementById('yv-wrap');
-  const yvpills=document.getElementById('yv-pills');
-  const yvcnt=document.getElementById('yv-count');
-  if(yvwrap&&yvpills){
-    if(votes.length>0){
-      yvwrap.style.display='block';
-      if(yvcnt) yvcnt.textContent=`— ${votes.length} vote${votes.length!==1?'s':''}`;
-      yvpills.innerHTML=votes.map(([id,dir])=>{
-        const pol=POLS.find(p=>p.id===id);if(!pol)return'';
-        const sc=dir==='s'?'yv-pill-s':'yv-pill-o';
-        return`<span class="yv-pill ${sc}" onclick="go('polls')">
-          ${dir==='s'?'↑':'↓'} ${pol.name.split(' ')[0]}
-          <span class="yv-pill-x">×</span>
-        </span>`;
-      }).join('');
-    } else {
-      yvwrap.style.display='none';
-    }
-  }
-
-  // Sidebar stats
-  const total=POLS.reduce((a,p)=>{const cv=c[p.id]||{s:0,o:0};return a+cv.s+cv.o},0);
-  const sbTotal=document.getElementById('sb-total');if(sbTotal)sbTotal.textContent=fmt(total);
-  const sbPols=document.getElementById('sb-pols');if(sbPols)sbPols.textContent=POLS.length;
-  const sbCmts=document.getElementById('sb-cmts');if(sbCmts)sbCmts.textContent=totalComments();
-  const sbYours=document.getElementById('sb-yours');if(sbYours)sbYours.textContent=votes.length;
-
-  // Sidebar top 5 by support %
-  const top5=[...POLS].map(p=>{
-    const cv=c[p.id]||{s:0,o:0};const{sp}=pct(cv.s,cv.o);
-    return{pol:p,sp,total:cv.s+cv.o};
-  }).sort((a,b)=>b.total-a.total).slice(0,5);
-  const sb5=document.getElementById('sb-top5');
-  if(sb5){
-    sb5.innerHTML=top5.map(({pol,sp,total})=>`
-      <div class="sb-row">
-        <div style="display:flex;align-items:center;gap:7px;min-width:0">
-          <div class="av" style="background:${pol.color};width:24px;height:24px;border-radius:6px;font-size:8px;flex-shrink:0">${ini(pol.name)}</div>
-          <span class="sb-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pol.name.split(' ')[0]} ${pol.name.split(' ').slice(-1)[0]}</span>
-        </div>
-        <span class="sb-val" style="color:${sp>=50?'var(--lime)':'var(--red)'}">${total===0?'—':sp+'%'}</span>
-      </div>`).join('');
-  }
-}
-
-/* ══════════════════════════════════════════
-   RENDER: LEADERBOARD
-══════════════════════════════════════════ */
-let LM='support';
-function setLb(m,btn){
-  LM=m;
-  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  rLb();
-}
-function rLb(){
-  const c=getC();
-  const sorted=[...POLS].sort((a,b)=>{
-    const ca=c[a.id]||{s:0,o:0},cb=c[b.id]||{s:0,o:0};
-    if(LM==='support'){const{sp:sa}=pct(ca.s,ca.o),{sp:sb}=pct(cb.s,cb.o);return sb-sa}
-    if(LM==='oppose'){const{op:oa}=pct(ca.s,ca.o),{op:ob}=pct(cb.s,cb.o);return ob-oa}
-    return(cb.s+cb.o)-(ca.s+ca.o);
-  });
-  const el=document.getElementById('lblist');
-  if(!el)return;
-  el.innerHTML=sorted.map((pol,i)=>{
-    const cv=c[pol.id]||{s:0,o:0};
-    const{sp,op}=pct(cv.s,cv.o);const total=cv.s+cv.o;
-    const rk=i===0?'g':i===1?'s':i===2?'b':'';
-    const barW=LM==='oppose'?op:LM==='support'?sp:0;
-    const val=LM==='votes'?fmt(total):(LM==='oppose'?op:sp)+'%';
-    const pcls=LM==='oppose'?'go':LM==='support'?'gs':'gn';
-    const bc=LM==='oppose'?'var(--red)':'var(--lime)';
-    return`<div class="lb-row" onclick="go('polls')">
-      <div class="lb-rank ${rk}">${i+1}</div>
-      <div class="lb-av" style="background:${pol.color}">${ini(pol.name)}</div>
-      <div class="lb-info">
-        <div class="lb-name">${pol.name}</div>
-        <div class="lb-det">${pol.party} · ${pol.type} · ${pol.state}</div>
-      </div>
-      <div class="lb-bar-w">
-        <div class="lb-bar"><div class="lb-fill" style="width:${barW}%;background:${bc}"></div></div>
-        <div class="lb-votes">${total===0?'No votes yet':fmt(total)+' total votes'}</div>
-      </div>
-      <div class="lb-pct ${pcls}">${total===0?'—':val}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ══════════════════════════════════════════
-   RENDER: REGIONS
-══════════════════════════════════════════ */
-function rRg(){
-  const el=document.getElementById('rggrid');if(!el)return;
-  el.innerHTML=ZONES.map(zone=>{
-    const top=zone.pols
-      .map(id=>({pol:POLS.find(p=>p.id===id),r:rpct(id,zone.name)}))
-      .filter(x=>x.pol)
-      .sort((a,b)=>b.r-a.r)
-      .slice(0,5);
-    return`<div class="rg-card">
-      <div class="rg-zone">${zone.name}</div>
-      <div class="rg-states">${zone.states}</div>
-      <div class="rp-list">
-        ${top.map(({pol,r})=>{
-          const col=r>=50?'var(--lime)':'var(--red)';
-          return`<div class="rp-row">
-            <div class="rp-top">
-              <div class="rp-av" style="background:${pol.color}">${ini(pol.name)}</div>
-              <div class="rp-name">${pol.name}</div>
-              <div class="rp-pct" style="color:${col}">${r}%</div>
+            <!-- LIVE COUNTER -->
+            <div class="live-banner">
+                <div class="lbc">
+                    <div class="lbc-main">
+                        <div class="lbc-label"><span class="live-dot"></span>Live Vote Count</div>
+                        <div class="lbc-num" id="lbc-n"><em>0</em></div>
+                        <div class="lbc-sub" id="lbc-sub">Be the first to vote — recorded anonymously on your device
+                        </div>
+                    </div>
+                    <div class="lbc-stats">
+                        <div class="lbc-stat">
+                            <div class="lbc-stat-n" id="st-pols">0</div>
+                            <div class="lbc-stat-l">Politicians</div>
+                        </div>
+                        <div class="lbc-stat">
+                            <div class="lbc-stat-n" id="st-yours">0</div>
+                            <div class="lbc-stat-l">Your Votes</div>
+                        </div>
+                        <div class="lbc-stat">
+                            <div class="lbc-stat-n" id="st-cmts">0</div>
+                            <div class="lbc-stat-l">Comments</div>
+                        </div>
+                        <div class="lbc-stat">
+                            <div class="lbc-stat-n">36</div>
+                            <div class="lbc-stat-l">States</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="rp-bar"><div class="rp-fill" style="width:${r}%;background:${col}"></div></div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
 
-/* ══════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════ */
-let tTimer;
-function showToast(msg,col='#84cc16'){
-  clearTimeout(tTimer);
-  document.getElementById('ttxt').textContent=msg;
-  document.getElementById('tpip').style.background=col;
-  document.getElementById('toast').classList.add('show');
-  tTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),2600);
-}
+            <!-- TRENDING -->
+            <section class="home-sec">
+                <div class="sec-hd">
+                    <div>
+                        <div class="eyebrow">Trending Now</div>
+                        <h2 class="sec-title">Most Active Politicians</h2>
+                    </div>
+                    <span class="sec-lnk" onclick="go('polls')">See all →</span>
+                </div>
+                <div class="g3" id="g-trend"></div>
+            </section>
 
-/* ══════════════════════════════════════════
-   ROUTER
-══════════════════════════════════════════ */
-const PAGES={home:'pg-home',polls:'pg-polls',lb:'pg-lb',rg:'pg-rg',about:'pg-about'};
-const RENDERERS={home:rHome,polls:rPolls,lb:rLb,rg:rRg,about:()=>{}};
+            <div class="divider-txt">Most Polarising</div>
 
-function go(id){
-  Object.values(PAGES).forEach(pid=>{
-    const el=document.getElementById(pid);if(el)el.classList.remove('on');
-  });
-  const pg=document.getElementById(PAGES[id]);if(pg)pg.classList.add('on');
-  ['home','polls','lb','rg','about'].forEach(n=>{
-    ['nl-'+n,'mn-'+n].forEach(eid=>{
-      const el=document.getElementById(eid);
-      if(el)el.className=n===id?'on':'';
-    });
-  });
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(RENDERERS[id])RENDERERS[id]();
-}
-function refresh(){
-  const a=document.querySelector('.page.on');
-  if(a){const id=a.id.replace('pg-','');if(RENDERERS[id])RENDERERS[id]();}
-}
+            <!-- POLARISING -->
+            <section class="home-sec">
+                <div class="sec-hd">
+                    <div>
+                        <div class="eyebrow">Divided Opinion</div>
+                        <h2 class="sec-title">Most Debated</h2>
+                    </div>
+                    <span class="sec-lnk" onclick="go('polls')">See all →</span>
+                </div>
+                <div class="g3" id="g-polar"></div>
+            </section>
 
-/* ══════════════════════════════════════════
-   MOBILE NAV
-══════════════════════════════════════════ */
-function toggleMnav(){
-  const h=document.getElementById('hbg'),m=document.getElementById('mnav');
-  h.classList.toggle('open');m.classList.toggle('open');
-  h.setAttribute('aria-expanded',m.classList.contains('open'));
-}
-function closeMnav(){
-  document.getElementById('hbg').classList.remove('open');
-  document.getElementById('mnav').classList.remove('open');
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMnav()});
+        </div>
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', async () => {
-  getC();      // Set up local storage with zero counts
-  rHome();     // Show the UI immediately (feels instant)
-  await loadFromSupabase();  // Pull live vote counts from cloud
-  subscribeRealtime();       // Start listening for other people's votes
-});
-</script>
+        <!-- ════════════════ POLLS ════════════════ -->
+        <div class="page" id="pg-polls">
+
+            <div class="polls-head">
+                <h1 class="page-title">All Politicians</h1>
+                <p class="page-sub">36 state governors, key senators &amp; national figures. Vote + comment anonymously.
+                </p>
+                <div class="filter-row">
+                    <div class="sbox">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input type="search" class="sin" id="srch" placeholder="Search…" oninput="rPolls()"
+                               aria-label="Search politicians">
+                    </div>
+                    <!-- Type filters -->
+                    <button class="fbtn on" onclick="setF('all',this)">All</button>
+                    <button class="fbtn" onclick="setF('National',this)">National</button>
+                    <button class="fbtn" onclick="setF('Governor',this)">Governors</button>
+                    <button class="fbtn" onclick="setF('Senator',this)">Senators</button>
+                    <!-- Party -->
+                    <select class="sel-filter" id="sel-party" onchange="rPolls()" aria-label="Filter by party">
+                        <option value="">All Parties</option>
+                        <option>APC</option>
+                        <option>PDP</option>
+                        <option>Labour</option>
+                        <option>NNPP</option>
+                        <option>APGA</option>
+                    </select>
+                    <!-- Region -->
+                    <select class="sel-filter" id="sel-region" onchange="rPolls()" aria-label="Filter by region">
+                        <option value="">All Regions</option>
+                        <option>Southwest</option>
+                        <option>Southeast</option>
+                        <option>South-South</option>
+                        <option>Northwest</option>
+                        <option>Northeast</option>
+                        <option>North Central</option>
+                    </select>
+                    <!-- Sort -->
+                    <select class="sel-filter" id="sel-sort" onchange="rPolls()" aria-label="Sort by">
+                        <option value="trending">Trending</option>
+                        <option value="supported">Most Supported</option>
+                        <option value="opposed">Most Opposed</option>
+                        <option value="polarising">Polarising</option>
+                        <option value="alpha">A → Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- YOUR VOTES STRIP (shown when user has votes) -->
+            <div class="your-votes" id="yv-wrap" style="display:none">
+                <div class="yv-card">
+                    <div class="yv-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.8">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Your Votes <span style="font-size:11px;font-weight:400;color:var(--mu2)" id="yv-count"></span>
+                    </div>
+                    <div class="yv-pills" id="yv-pills"></div>
+                </div>
+            </div>
+
+            <div class="polls-body">
+                <div>
+                    <div class="polls-count" id="polls-count"><span>0</span> politicians shown</div>
+                    <div class="pgrid" id="pgrid"></div>
+                </div>
+                <!-- SIDEBAR -->
+                <aside class="polls-sidebar">
+                    <div class="sidebar-card">
+                        <div class="sidebar-title">
+                            <span class="live-dot"></span>Live Pulse
+                        </div>
+                        <div id="sb-top5"></div>
+                    </div>
+                    <div class="sidebar-card">
+                        <div class="sidebar-title">Platform Stats</div>
+                        <div class="sb-row"><span class="sb-name">Total Votes</span><span class="sb-val"
+                                  id="sb-total">0</span></div>
+                        <div class="sb-row"><span class="sb-name">Politicians</span><span class="sb-val"
+                                  id="sb-pols">0</span></div>
+                        <div class="sb-row"><span class="sb-name">Comments</span><span class="sb-val"
+                                  id="sb-cmts">0</span></div>
+                        <div class="sb-row"><span class="sb-name">Your Votes</span><span class="sb-val"
+                                  id="sb-yours">0</span></div>
+                    </div>
+                </aside>
+            </div>
+
+        </div>
+
+        <!-- ════════════════ LEADERBOARD ════════════════ -->
+        <div class="page" id="pg-lb">
+            <div class="lb-wrap">
+                <h1 class="page-title">Leaderboard</h1>
+                <p class="page-sub">Ranked by grassroots sentiment across all politicians on Pollux.</p>
+                <div class="lb-tabs">
+                    <button class="lb-tab on" onclick="setLb('support',this)">Most Supported</button>
+                    <button class="lb-tab" onclick="setLb('oppose',this)">Most Opposed</button>
+                    <button class="lb-tab" onclick="setLb('votes',this)">Most Voted</button>
+                </div>
+                <div class="lb-list" id="lblist"></div>
+            </div>
+        </div>
+
+        <!-- ════════════════ REGIONS ════════════════ -->
+        <div class="page" id="pg-rg">
+            <div class="rg-wrap">
+                <h1 class="page-title">Regional Breakdown</h1>
+                <p class="page-sub">Sentiment across Nigeria's six geopolitical zones, weighted by regional voter
+                    patterns.</p>
+                <div class="rg-grid" id="rggrid"></div>
+            </div>
+        </div>
+
+        <!-- ════════════════ ABOUT ════════════════ -->
+        <div class="page" id="pg-about">
+            <div class="ab-wrap">
+                <h1 class="page-title">About Pollux</h1>
+                <p class="page-sub">An anonymous, grassroots political sentiment platform built for Nigerian voters.</p>
+                <div class="ab-grid">
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg></div>
+                        <h3 class="ab-ct">100% Anonymous</h3>
+                        <p class="ab-cb">No accounts, no emails. All votes and comments stored only on your device. Zero
+                            personal data collected.</p>
+                    </div>
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg></div>
+                        <h3 class="ab-ct">Comment System</h3>
+                        <p class="ab-cb">Beyond binary votes — share why you support or oppose a politician. Comments
+                            are anonymous and public.</p>
+                    </div>
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg></div>
+                        <h3 class="ab-ct">Real-Time Results</h3>
+                        <p class="ab-cb">Rankings, trending politicians, and regional patterns update instantly as you
+                            vote.</p>
+                    </div>
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="10" />
+                                <path
+                                      d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10A15.3 15.3 0 018 12a15.3 15.3 0 014-10z" />
+                            </svg></div>
+                        <h3 class="ab-ct">All 36 States</h3>
+                        <p class="ab-cb">Every governor tracked. Sentiment broken down across Nigeria's six geopolitical
+                            zones.</p>
+                    </div>
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg></div>
+                        <h3 class="ab-ct">AI Briefings</h3>
+                        <p class="ab-cb">Tap "Ask AI" on any card to copy a structured prompt — paste into Claude.ai or
+                            ChatGPT for a 
+                            current politician briefing.</p>
+                    </div>
+                    <div class="ab-card">
+                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg></div>
+                        <h3 class="ab-ct">Manipulation-Resistant</h3>
+                        <p class="ab-cb">Rate-limiting and transparent public counts make gaming results difficult. All
+                            data is auditable.</p>
+                    </div>
+                </div>
+                <div class="ab-note">
+                    <h3 class="ab-nt">A note on this platform</h3>
+                    <p>Pollux does not predict election outcomes. It is an opinion tracker — a pulse check on public
+                        sentiment from users who choose to participate, which may not represent the broader Nigerian
+                        electorate.</p>
+                    <p>Politician information is sourced from publicly available records. Pollux is independent and
+                        non-partisan with no affiliation to INEC or any political party.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <span class="toast-pip" id="tpip"></span>
+        <span id="ttxt">Saved</span>
+    </div>
+
 </body>
 </html>
