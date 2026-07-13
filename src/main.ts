@@ -3,30 +3,46 @@ import './styles/main.scss';
 import { RENDERERS } from './ui/nav.js';
 import { rHome } from './pages/home.js';
 import { rPolls, setF, showSkeletons } from './pages/polls.js';
-import { rLb, setLb } from './pages/leaderboard.js';
+import { rLb } from './pages/leaderboard.js';
 import { rRg } from './pages/regions.js';
-import { rVerdict } from './pages/verdict.js';
+import { rPulse, setPulse } from './pages/pulse.js';
+import { rDetail, openDetail, toggleBriefing } from './pages/detail.js';
 
 RENDERERS.home = rHome;
 RENDERERS.polls = rPolls;
 RENDERERS.lb = rLb;
 RENDERERS.rg = rRg;
-RENDERERS.verdict = rVerdict;
+RENDERERS.pulse = rPulse;
+RENDERERS.detail = rDetail;
 
-import { doVote, aiInfo, shareCard } from './ui/card.js';
+import { shareCard } from './ui/card.js';
 import { go, toggleMnav, closeMnav } from './ui/nav.js';
+import {
+    doVote, retractVote, submitCommentUI, reportCommentUI,
+    openMethod, closeMethod, regionSave, regionSkip, regionSaveInline, regionSkipInline,
+} from './ui/trust.js';
 
 window.doVote = doVote;
-window.aiInfo = aiInfo;
+window.retractVote = retractVote;
+window.openDetail = openDetail;
+window.toggleBriefing = toggleBriefing;
 window.shareCard = shareCard;
+window.submitCommentUI = submitCommentUI;
+window.reportCommentUI = reportCommentUI;
+window.openMethod = openMethod;
+window.closeMethod = closeMethod;
+window.regionSave = regionSave;
+window.regionSkip = regionSkip;
+window.regionSaveInline = regionSaveInline;
+window.regionSkipInline = regionSkipInline;
 window.go = go;
 window.setF = setF;
-window.setLb = setLb;
-(window as any).rPolls = rPolls;
+window.setPulse = setPulse;
+window.rPolls = rPolls;
+window.rLb = rLb;
 window.toggleMnav = toggleMnav;
 window.closeMnav = closeMnav;
 
-// Mobile filter drawer
 window.openFilterDrawer = function () {
     document.getElementById('filter-drawer')?.classList.add('open');
     document.getElementById('filter-overlay')?.classList.add('open');
@@ -46,6 +62,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
         closeMnav();
         window.closeFilterDrawer();
+        closeMethod();
     }
 });
 
@@ -53,8 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     getC();
 
     if (urlPol) {
-        go('polls');
-        showSkeletons(6);
+        openDetail(urlPol);
     } else {
         rHome();
         showSkeletons(6);

@@ -1,74 +1,83 @@
-/* ── RESPONSIVE ── */
-@media (max-width:1100px) {
-    .polls-body {
-        grid-template-columns: 1fr;
-    }
-
-    .polls-sidebar {
-        position: static;
-    }
-
-    .pgrid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+@media (max-width: 1100px) {
+    .pgrid { grid-template-columns: repeat(2, 1fr); }
+    .heat-grid { grid-template-columns: repeat(2, 1fr); }
+    .entry-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width:920px) {
-    .g3 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .rg-grid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 920px) {
+    .rg-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid, .detail-grid-even { grid-template-columns: 1fr; }
+    .digest-cols { grid-template-columns: 1fr; }
+    .stat-strip { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width:640px) {
-
-    .g3,
-    .pgrid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 640px) {
+    nav { padding: 0 16px; }
 
     .nav-links,
-    .nav-cta {
-        display: none;
-    }
+    .nav-method { display: none; }
 
-    .hbg {
-        display: flex;
-    }
+    .hbg { display: flex; }
+
+    .wrap { padding: 36px 16px 72px; }
+
+    .pgrid,
+    .heat-grid,
+    .entry-grid,
+    .rg-grid { grid-template-columns: 1fr; }
 
     .hero-title {
-        letter-spacing: -3px;
+        font-size: clamp(38px, 12vw, 52px);
+        letter-spacing: -2px;
     }
+
+    .hero-actions {
+        flex-direction: column;
+        margin-bottom: 48px;
+
+        .btn-solid, .btn-ghost { width: 100%; }
+    }
+
+    .stat-strip { margin-bottom: 48px; }
+    .heat-grid { margin-bottom: 48px; }
 
     .page-title {
         font-size: 30px;
         letter-spacing: -1.5px;
     }
 
-    .lbc-num {
-        font-size: 40px;
+    .sin { width: 100%; }
+    .sbox { width: 100%; }
+
+    .filter-chips { display: none; }
+    .filter-open { display: inline-block; }
+
+    .vt-btn {
+        min-height: 44px;
+        font-size: 12.5px;
     }
 
-    .lbc-stats {
-        flex-wrap: wrap;
-    }
+    .lb-data { width: auto; }
+    .lb-track { display: none; }
+    .lb-votes { display: none; }
+    .lb-nodata { width: auto; }
+    .lb-row { gap: 12px; padding: 14px 16px; }
+    .lb-row .ptag { display: none; }
 
-    .lbc-stat {
-        padding: 10px 16px;
-    }
+    .detail-name { font-size: 28px; letter-spacing: -1.2px; }
 
-    .ab-grid {
-        grid-template-columns: 1fr;
-    }
+    .detail-actions { width: 100%; }
 
-    .lb-bar-w {
-        display: none;
-    }
+    .pulse-now { display: none; }
 
-    .polls-sidebar {
-        display: none;
+    .modal { padding: 22px; }
+
+    .method-consts { gap: 16px; }
+
+    .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        max-width: none;
     }
 }

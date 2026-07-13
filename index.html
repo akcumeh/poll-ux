@@ -5,382 +5,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-          content="Pollux — Anonymous real-time Nigerian political sentiment. Vote, comment, and see what Nigeria really thinks.">
-          <!-- Social media preview -->
-<meta property="og:title" content="Pollux NG" />
-<meta property="og:description" content="Anonymous real-time Nigerian political sentiment. Vote on presidents, governors and senators." />
-<meta property="og:image" content="https://pollux-ng.netlify.app/preview.png" />
-<meta property="og:url" content="https://pollux-ng.netlify.app" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:image" content="https://pollux-ng.netlify.app/preview.png" />
-<meta name="twitter:card" content="summary_large_image" />
-    <title>Pollux | The Peoples Verdict</title>
+          content="Pollux is anonymous, real time Nigerian political sentiment. Every number is backed by real votes, and where the sample is too small, we say so.">
+    <meta property="og:title" content="Pollux NG" />
+    <meta property="og:description"
+          content="Anonymous real-time Nigerian political sentiment. Vote on presidents, governors and senators." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Pollux: Nigerian Political Sentiment</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-    <!-- Yellix (display) -->
-    
-    <!-- Inter (UI/body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+    <style>html,body{background:#0A0A0A}</style>
 
     <script type="module" src="/src/main.ts"></script>
 </head>
-<link rel="icon" type="image/png" href="/favicon.png?v=2">
-<body>
 
-    <!-- AURORA -->
-    <div class="aurora" aria-hidden="true">
-        <div class="aurora-blob ab1"></div>
-        <div class="aurora-blob ab2"></div>
-        <div class="aurora-blob ab3"></div>
-    </div>
+<body>
 
     <!-- NAV -->
     <nav>
         <div class="nav-brand" onclick="go('home')" role="button" tabindex="0">
             <div class="nav-mark">P</div>
             <span class="nav-name">Pollux</span>
-            <span class="nav-pill"><span class="live-dot"></span>LIVE</span>
         </div>
         <ul class="nav-links">
             <li><a onclick="go('home')" id="nl-home" class="on">Home</a></li>
             <li><a onclick="go('polls')" id="nl-polls">Polls</a></li>
             <li><a onclick="go('lb')" id="nl-lb">Leaderboard</a></li>
             <li><a onclick="go('rg')" id="nl-rg">Regions</a></li>
-            <li><a onclick="go('about')" id="nl-about">About</a></li>
-            <li><a onclick="go('verdict')" id="nl-verdict">Verdict</a></li>
+            <li><a onclick="go('pulse')" id="nl-pulse">Pulse</a></li>
         </ul>
-        <button class="nav-cta" onclick="go('polls')">Cast Your Vote</button>
-        <button class="hbg" id="hbg" onclick="toggleMnav()" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
+        <div class="nav-right">
+            <div class="nav-pill"><span class="live-dot"></span><span class="nav-pill-txt">LIVE</span></div>
+            <button class="nav-method" onclick="openMethod()">How we calculate this</button>
+            <button class="hbg" id="hbg" onclick="toggleMnav()" aria-expanded="false" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </nav>
     <div class="mnav" id="mnav">
         <a onclick="go('home');closeMnav()" id="mn-home" class="on">Home</a>
         <a onclick="go('polls');closeMnav()" id="mn-polls">Polls</a>
         <a onclick="go('lb');closeMnav()" id="mn-lb">Leaderboard</a>
         <a onclick="go('rg');closeMnav()" id="mn-rg">Regions</a>
-        <a onclick="go('about');closeMnav()" id="mn-about">About</a>
-        <a onclick="go('verdict');closeMnav()" id="mn-verdict">Verdict</a>
+        <a onclick="go('pulse');closeMnav()" id="mn-pulse">Pulse</a>
+        <button class="mnav-method" onclick="closeMnav();openMethod()">How we calculate this</button>
     </div>
 
     <main>
 
-        <!-- ════════════════ HOME ════════════════ -->
+        <!-- HOME -->
         <div class="page on" id="pg-home">
-
-            <div class="home-hero">
-                <div class="hero-eyebrow">
-                    <span class="live-dot"></span>
-                    Real-time · Anonymous · Grassroots
-                </div>
-               <h1 class="hero-title">What do<br>Nigerians <em>really</em><br>think?</h1>
-                <p class="hero-sub">Anonymous real-time political sentiment from Nigerians. No account, no agenda. Vote
-    on presidents, governors, senators.</p>
+            <div class="wrap">
+                <div class="mlabel lime hero-eyebrow">Anonymous, real time, grassroots</div>
+                <h1 class="hero-title">What do Nigerians really think?</h1>
+                <p class="hero-sub">Anonymous real time political sentiment from Nigerians. No account, no agenda.
+                    Every number on this platform is backed by real votes, and where the sample is too small we say
+                    so.</p>
                 <div class="hero-actions">
-                    <button class="btn-primary" onclick="go('polls')">Vote Now</button>
-                    <button class="btn-ghost" onclick="go('lb')">View Rankings →</button>
+                    <button class="btn-solid" onclick="go('polls')">Vote now</button>
+                    <button class="btn-ghost" onclick="go('lb')">View rankings</button>
                 </div>
-            </div>
 
-            <!-- LIVE COUNTER -->
-            <div class="live-banner">
-                <div class="lbc">
-                    <div class="lbc-main">
-                        <div class="lbc-label"><span class="live-dot"></span>Live Vote Count</div>
-                        <div class="lbc-num" id="lbc-n"><em>0</em></div>
-                        <div class="lbc-sub" id="lbc-sub">Be the first to vote — recorded anonymously on your device
-                        </div>
-                    </div>
-                    <div class="lbc-stats">
-                        <div class="lbc-stat">
-                            <div class="lbc-stat-n" id="st-pols">0</div>
-                            <div class="lbc-stat-l">Politicians</div>
-                        </div>
-                        <div class="lbc-stat">
-                            <div class="lbc-stat-n" id="st-yours">0</div>
-                            <div class="lbc-stat-l">Your Votes</div>
-                        </div>
-                       
-                        <div class="lbc-stat">
-                            <div class="lbc-stat-n">36</div>
-                            <div class="lbc-stat-l">States</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <div class="stat-strip" id="home-stats"></div>
 
-            <!-- TRENDING -->
-            <section class="home-sec">
                 <div class="sec-hd">
                     <div>
-                        <div class="eyebrow">Trending Now</div>
-                        <h2 class="sec-title">Most Active Politicians</h2>
+                        <div class="mlabel violet" style="margin-bottom:10px">AI generated, from comment analysis</div>
+                        <h2 class="sec-title">Most heated debates</h2>
                     </div>
-                    <span class="sec-lnk" onclick="go('polls')">See all →</span>
+                    <button class="quiet-link" onclick="openMethod()">How is this measured?</button>
                 </div>
-                <div class="g3" id="g-trend"></div>
-            </section>
+                <div class="heat-grid" id="home-heated"></div>
 
-            <div class="divider-txt">Most Polarising</div>
-
-            <!-- POLARISING -->
-            <section class="home-sec">
-                <div class="sec-hd">
-                    <div>
-                        <div class="eyebrow">Divided Opinion</div>
-                        <h2 class="sec-title">Most Debated</h2>
+                <div class="entry-grid">
+                    <div class="entry-card" onclick="go('polls')">
+                        <div class="entry-title">Polls</div>
+                        <div class="entry-desc">Browse every tracked politician and cast an anonymous vote.</div>
                     </div>
-                    <span class="sec-lnk" onclick="go('polls')">See all →</span>
+                    <div class="entry-card" onclick="go('lb')">
+                        <div class="entry-title">Leaderboard</div>
+                        <div class="entry-desc">Rankings by grassroots support, with honest sample sizes.</div>
+                    </div>
+                    <div class="entry-card" onclick="go('rg')">
+                        <div class="entry-title">Regions</div>
+                        <div class="entry-desc">Sentiment by zone, built only from real regional votes.</div>
+                    </div>
+                    <div class="entry-card" onclick="go('pulse')">
+                        <div class="entry-title">Pulse</div>
+                        <div class="entry-desc">The biggest movers today, this week and this month.</div>
+                    </div>
                 </div>
-                <div class="g3" id="g-polar"></div>
-            </section>
-
+            </div>
         </div>
 
-        <!-- ════════════════ POLLS ════════════════ -->
+        <!-- POLLS -->
         <div class="page" id="pg-polls">
-
-            <div class="polls-head">
-                <h1 class="page-title">All Politicians</h1>
-                <p class="page-sub">36 state governors, key senators &amp; national figures. Vote + comment anonymously.
-                </p>
+            <div class="wrap">
+                <h1 class="page-title">Polls</h1>
+                <p class="page-sub">Every vote is anonymous and tied to this device. You can change or retract any
+                    vote at any time.</p>
                 <div class="filter-row">
-    <!-- Mobile filter toggle button (hidden on desktop) -->
-    <button class="filter-toggle-btn" onclick="openFilterDrawer()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-        Filter & Sort
-    </button>
-    <!-- Desktop filters (hidden on mobile) -->
-    <button class="fbtn on" onclick="setF('all',this)">All</button>
-    <button class="fbtn" onclick="setF('National',this)">National</button>
-    <button class="fbtn" onclick="setF('Governor',this)">Governors</button>
-    <button class="fbtn" onclick="setF('Senator',this)">Senators</button>
-    <select class="sel-filter" id="sel-party" onchange="rPolls()" aria-label="Filter by party">
-        <option value="">All Parties</option>
-<option>APC</option>
-<option>PDP</option>
-<option>Labour</option>
-<option>NNPP</option>
-<option>APGA</option>
-<option>ADC</option>
-    </select>
-    <select class="sel-filter" id="sel-region" onchange="rPolls()" aria-label="Filter by region">
-        <option value="">All Regions</option>
-        <option>Southwest</option>
-        <option>Southeast</option>
-        <option>South-South</option>
-        <option>Northwest</option>
-        <option>Northeast</option>
-        <option>North Central</option>
-    </select>
-    <select class="sel-filter" id="sel-sort" onchange="rPolls()" aria-label="Sort by">
-        <option value="trending">Trending</option>
-        <option value="supported">Most Supported</option>
-        <option value="opposed">Most Opposed</option>
-        <option value="polarising">Polarising</option>
-        <option value="alpha">A → Z</option>
-    </select>
-</div>
-
-
-            <!-- YOUR VOTES STRIP (shown when user has votes) -->
-            <div class="your-votes" id="yv-wrap" style="display:none">
-                <div class="yv-card">
-                    <div class="yv-title">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="1.8">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Your Votes <span style="font-size:11px;font-weight:400;color:var(--mu2)" id="yv-count"></span>
+                    <div class="sbox">
+                        <input type="search" class="sin" id="srch" placeholder="Search politicians" oninput="rPolls()"
+                               aria-label="Search politicians">
                     </div>
-                    <div class="yv-pills" id="yv-pills"></div>
+                    <div class="filter-chips">
+                        <button class="fbtn on" data-f="all" onclick="setF('all',this)">All roles</button>
+                        <button class="fbtn" data-f="National" onclick="setF('National',this)">National</button>
+                        <button class="fbtn" data-f="Governor" onclick="setF('Governor',this)">Governors</button>
+                        <button class="fbtn" data-f="Senator" onclick="setF('Senator',this)">Senators</button>
+                    </div>
+                    <select class="sel-filter" id="sel-party" onchange="rPolls()" aria-label="Filter by party">
+                        <option value="">All parties</option>
+                        <option>APC</option>
+                        <option>PDP</option>
+                        <option>Labour</option>
+                        <option>NNPP</option>
+                        <option>APGA</option>
+                        <option>ADC</option>
+                    </select>
+                    <select class="sel-filter" id="sel-region" onchange="rPolls()" aria-label="Filter by zone">
+                        <option value="">All zones</option>
+                        <option>Southwest</option>
+                        <option>Southeast</option>
+                        <option>South-South</option>
+                        <option>Northwest</option>
+                        <option>Northeast</option>
+                        <option>North Central</option>
+                    </select>
+                    <select class="sel-filter" id="sel-sort" onchange="rPolls()" aria-label="Sort by">
+                        <option value="trending">Most votes</option>
+                        <option value="supported">Most supported</option>
+                        <option value="opposed">Most opposed</option>
+                        <option value="polarising">Polarising</option>
+                        <option value="alpha">A to Z</option>
+                    </select>
+                    <button class="fbtn filter-open" onclick="openFilterDrawer()">Filters</button>
                 </div>
+                <div class="polls-count" id="polls-count"></div>
+                <div class="pgrid" id="pgrid"></div>
             </div>
-
-            <div class="polls-body">
-                <div>
-                    <div class="polls-count" id="polls-count"><span>0</span> politicians shown</div>
-                    <div class="pgrid" id="pgrid"></div>
-                </div>
-                <!-- SIDEBAR -->
-                <aside class="polls-sidebar">
-                    <div class="sidebar-card">
-                        <div class="sidebar-title">
-                            <span class="live-dot"></span>Live Pulse
-                        </div>
-                        <div id="sb-top5"></div>
-                    </div>
-                    <div class="sidebar-card">
-                        <div class="sidebar-title">Platform Stats</div>
-                        <div class="sb-row"><span class="sb-name">Total Votes</span><span class="sb-val"
-                                  id="sb-total">0</span></div>
-                        <div class="sb-row"><span class="sb-name">Politicians</span><span class="sb-val"
-                                  id="sb-pols">0</span></div>
-                        <div class="sb-row"><span class="sb-name">Your Votes</span><span class="sb-val"
-                                  id="sb-yours">0</span></div>
-                    </div>
-                </aside>
-            </div>
-
-        </div>
-        
         </div>
 
-        <!-- ════════════════ LEADERBOARD ════════════════ -->
+        <!-- LEADERBOARD -->
         <div class="page" id="pg-lb">
-            <div class="lb-wrap">
+            <div class="wrap wrap-narrow">
                 <h1 class="page-title">Leaderboard</h1>
-                <p class="page-sub">Ranked by grassroots sentiment across all politicians on Pollux.</p>
-                <div class="lb-tabs">
-                    <button class="lb-tab on" onclick="setLb('support',this)">Most Supported</button>
-                    <button class="lb-tab" onclick="setLb('oppose',this)">Most Opposed</button>
-                    <button class="lb-tab" onclick="setLb('votes',this)">Most Voted</button>
+                <p class="page-sub" id="lb-subtitle">Ranked by grassroots support across all politicians on Pollux.</p>
+                <div class="filter-row">
+                    <select class="sel-filter" id="lb-role" onchange="rLb()" aria-label="Filter by role">
+                        <option value="">All roles</option>
+                        <option value="National">National</option>
+                        <option value="Governor">Governors</option>
+                        <option value="Senator">Senators</option>
+                    </select>
+                    <select class="sel-filter" id="lb-party" onchange="rLb()" aria-label="Filter by party">
+                        <option value="">All parties</option>
+                        <option>APC</option>
+                        <option>PDP</option>
+                        <option>Labour</option>
+                        <option>NNPP</option>
+                        <option>APGA</option>
+                        <option>ADC</option>
+                    </select>
+                    <select class="sel-filter" id="lb-region" onchange="rLb()" aria-label="Filter by zone">
+                        <option value="">All zones</option>
+                        <option>Southwest</option>
+                        <option>Southeast</option>
+                        <option>South-South</option>
+                        <option>Northwest</option>
+                        <option>Northeast</option>
+                        <option>North Central</option>
+                    </select>
                 </div>
                 <div class="lb-list" id="lblist"></div>
             </div>
         </div>
 
-        <!-- ════════════════ REGIONS ════════════════ -->
+        <!-- REGIONS -->
         <div class="page" id="pg-rg">
-            <div class="rg-wrap">
-                <h1 class="page-title">Regional Breakdown</h1>
-                <p class="page-sub">Sentiment across Nigeria's six geopolitical zones, weighted by regional voter
-                    patterns.</p>
+            <div class="wrap">
+                <h1 class="page-title">Regions</h1>
+                <p class="page-sub">Sentiment by geopolitical zone, computed only from votes where the voter chose to
+                    share their state. Zones below the minimum sample of 20 regional votes show no percentage.</p>
+                <button class="quiet-link rg-method" onclick="openMethod()">How regional numbers work</button>
                 <div class="rg-grid" id="rggrid"></div>
+                <p class="rg-foot">Sharing a state is optional. Votes without a state count toward national totals but
+                    never toward a zone. Pollux never fills a missing regional number with an estimate.</p>
             </div>
         </div>
 
-        <!-- ════════════════ ABOUT ════════════════ -->
-        <div class="page" id="pg-about">
-            <div class="ab-wrap">
-                <h1 class="page-title">About Pollux</h1>
-                <p class="page-sub">An anonymous, grassroots political sentiment platform built for Nigerian voters.</p>
-                <div class="ab-grid">
-                    <div class="ab-card">
-                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="1.8">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg></div>
-                        <h3 class="ab-ct">100% Anonymous</h3>
-                        <p class="ab-cb">No accounts, no emails. All votes and comments stored only on your device. Zero
-                            personal data collected.</p>
-                    </div>
-                
-                    <div class="ab-card">
-                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="1.8">
-                                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg></div>
-                        <h3 class="ab-ct">Real-Time Results</h3>
-                        <p class="ab-cb">Rankings, trending politicians, and regional patterns update instantly as you
-                            vote.</p>
-                    </div>
-                    <div class="ab-card">
-                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="1.8">
-                                <circle cx="12" cy="12" r="10" />
-                                <path
-                                      d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10A15.3 15.3 0 018 12a15.3 15.3 0 014-10z" />
-                            </svg></div>
-                        <h3 class="ab-ct">All 36 States</h3>
-                        <p class="ab-cb">Every governor tracked. Sentiment broken down across Nigeria's six geopolitical
-                            zones.</p>
-                    </div>
-                    <div class="ab-card">
-                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="1.8">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                                <path d="M12 16v-4M12 8h.01" />
-                            </svg></div>
-                        <h3 class="ab-ct">AI Briefings</h3>
-                        <p class="ab-cb">Tap "Ask AI" on any card to copy a structured prompt — paste into Claude.ai or
-                            ChatGPT for a 
-                            current politician briefing.</p>
-                    </div>
-                    <div class="ab-card">
-                        <div class="ab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="1.8">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg></div>
-                        <h3 class="ab-ct">Manipulation-Resistant</h3>
-                        <p class="ab-cb">Rate-limiting and transparent public counts make gaming results difficult. All
-                            data is auditable.</p>
-                    </div>
+        <!-- POLITICIAN DETAIL -->
+        <div class="page" id="pg-detail">
+            <div class="wrap wrap-detail" id="detail-body"></div>
+        </div>
+
+        <!-- PULSE -->
+        <div class="page" id="pg-pulse">
+            <div class="wrap wrap-narrow">
+                <h1 class="page-title">Pulse</h1>
+                <p class="page-sub">The most active politicians by real vote movement, computed on the server from
+                    timestamped votes so every device sees the same numbers.</p>
+                <div class="pulse-tabs">
+                    <button class="pulse-tab" onclick="setPulse('day',this)">Today</button>
+                    <button class="pulse-tab on" onclick="setPulse('week',this)">This week</button>
+                    <button class="pulse-tab" onclick="setPulse('month',this)">This month</button>
                 </div>
-                <div class="ab-note">
-                    <h3 class="ab-nt">A note on this platform</h3>
-                    <p>Pollux does not predict election outcomes. It is an opinion tracker — a pulse check on public
-                        sentiment from users who choose to participate, which may not represent the broader Nigerian
-                        electorate.</p>
-                    <p>Politician information is sourced from publicly available records. Pollux is independent and
-                        non-partisan with no affiliation to INEC or any political party.</p>
-                </div>
+                <div id="pulse-body"></div>
             </div>
         </div>
-<!-- Mobile filter drawer -->
-<div class="filter-drawer-overlay" id="filter-overlay" onclick="closeFilterDrawer()"></div>
-<div class="filter-drawer" id="filter-drawer">
-    <div class="filter-drawer-handle"></div>
-    <div class="filter-drawer-title">Filter &amp; Sort</div>
-    <div class="filter-drawer-group">
-        <button class="fbtn on" onclick="setF('all',this);closeFilterDrawer()">All</button>
-        <button class="fbtn" onclick="setF('National',this);closeFilterDrawer()">National</button>
-        <button class="fbtn" onclick="setF('Governor',this);closeFilterDrawer()">Governors</button>
-        <button class="fbtn" onclick="setF('Senator',this);closeFilterDrawer()">Senators</button>
-    </div>
-    <div class="filter-drawer-group">
-        <select class="sel-filter" style="width:100%" onchange="document.getElementById('sel-party').value=this.value;rPolls()" aria-label="Filter by party">
-            <option value="">All Parties</option>
-            <option>APC</option>
-            <option>PDP</option>
-            <option>Labour</option>
-            <option>NNPP</option>
-            <option>APGA</option>
-            <option>ADC</option>
-        </select>
-    </div>
-    <div class="filter-drawer-group">
-        <select class="sel-filter" style="width:100%" onchange="document.getElementById('sel-region').value=this.value;rPolls()" aria-label="Filter by region">
-            <option value="">All Regions</option>
-            <option>Southwest</option>
-            <option>Southeast</option>
-            <option>South-South</option>
-            <option>Northwest</option>
-            <option>Northeast</option>
-            <option>North Central</option>
-        </select>
-    </div>
-    <div class="filter-drawer-group">
-        <select class="sel-filter" style="width:100%" onchange="document.getElementById('sel-sort').value=this.value;rPolls()" aria-label="Sort by">
-            <option value="trending">Trending</option>
-            <option value="supported">Most Supported</option>
-            <option value="opposed">Most Opposed</option>
-            <option value="polarising">Polarising</option>
-            <option value="alpha">A → Z</option>
-        </select>
-    </div>
-    <button class="filter-drawer-close" onclick="closeFilterDrawer()">Done</button>
-</div>
+
     </main>
-    
-<!-- ════════════════ VERDICT ════════════════ -->
-        <div class="page" id="pg-verdict">
-            <div class="vd-wrap">
-                <div class="vd-head">
-                    <h1 class="page-title">Nigeria's Verdict</h1>
-                    <p class="page-sub">Live vote activity — today, this week, this month. Updated in real time.</p>
-                </div>
-                <div id="vd-body"></div>
+
+    <!-- MOBILE FILTER DRAWER -->
+    <div class="filter-overlay" id="filter-overlay" onclick="closeFilterDrawer()"></div>
+    <div class="filter-drawer" id="filter-drawer">
+        <div class="fd-hd">
+            <span class="mlabel">Filters</span>
+            <button class="btn-ghost btn-sm" onclick="closeFilterDrawer()">Close</button>
+        </div>
+        <div class="fd-sec">
+            <div class="fd-label">Role</div>
+            <div class="fd-chips">
+                <button class="fbtn on" data-f="all" onclick="setF('all',this)">All roles</button>
+                <button class="fbtn" data-f="National" onclick="setF('National',this)">National</button>
+                <button class="fbtn" data-f="Governor" onclick="setF('Governor',this)">Governors</button>
+                <button class="fbtn" data-f="Senator" onclick="setF('Senator',this)">Senators</button>
             </div>
         </div>
+        <p class="fd-note">Party, zone and sort filters are in the bar above the grid.</p>
+    </div>
+
+    <!-- MODALS (methodology, region prompt) -->
+    <div id="modal-root"></div>
 
     <!-- TOAST -->
     <div class="toast" id="toast" role="status" aria-live="polite">
-        <span class="toast-pip" id="tpip"></span>
-        <span id="ttxt">Saved</span>
+        <div class="toast-title" id="toast-title">Saved</div>
+        <div class="toast-body" id="toast-body"></div>
     </div>
 
 </body>
+
 </html>

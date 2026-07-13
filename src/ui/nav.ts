@@ -5,8 +5,8 @@ export const PAGES: Record<PageId, string> = {
     polls: 'pg-polls',
     lb: 'pg-lb',
     rg: 'pg-rg',
-    about: 'pg-about',
-    verdict: 'pg-verdict'
+    detail: 'pg-detail',
+    pulse: 'pg-pulse',
 };
 
 export const RENDERERS: Record<PageId, () => void> = {
@@ -14,21 +14,27 @@ export const RENDERERS: Record<PageId, () => void> = {
     polls: () => {},
     lb: () => {},
     rg: () => {},
-    about: () => {},
-    verdict: () => {}
+    detail: () => {},
+    pulse: () => {},
 };
+
+const NAV_IDS: PageId[] = ['home', 'polls', 'lb', 'rg', 'pulse'];
 
 export function go(id: PageId): void {
     Object.values(PAGES).forEach(pid => {
         const el = document.getElementById(pid); if (el) el.classList.remove('on');
     });
     const pg = document.getElementById(PAGES[id]); if (pg) pg.classList.add('on');
-    (['home', 'polls', 'lb', 'rg', 'about', 'verdict'] as PageId[]).forEach(n => {
+    const navActive: PageId = id === 'detail' ? 'polls' : id;
+    NAV_IDS.forEach(n => {
         (['nl-' + n, 'mn-' + n]).forEach(eid => {
             const el = document.getElementById(eid);
-            if (el) el.className = n === id ? 'on' : '';
+            if (el) el.className = n === navActive ? 'on' : '';
         });
     });
+    if (id !== 'detail' && new URLSearchParams(location.search).has('pol')) {
+        history.pushState({}, '', location.pathname);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (RENDERERS[id]) RENDERERS[id]();
 }

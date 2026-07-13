@@ -1,47 +1,72 @@
-import type { LeaderboardMode } from '../types.js';
 import { getC } from '../lib/storage.js';
-import { fmt, pct, ini } from '../lib/helpers.js';
+import { fmt, pct } from '../lib/helpers.js';
+import { MIN_VOTES_OVERALL } from '../lib/constants.js';
 import { POLS } from '../data/politicians.js';
-
-export let LM: LeaderboardMode = 'support';
-
-export function setLb(m: LeaderboardMode, btn: HTMLElement): void {
-    LM = m;
-    document.querySelectorAll('.lb-tab').forEach(b => b.classList.remove('on'));
-    if (btn) btn.classList.add('on');
-    rLb();
-}
+import { avatar, partyTag } from '../ui/card.js';
 
 export function rLb(): void {
-    const c = getC();
-    const sorted = [...POLS].sort((a, b) => {
-        const ca = c[a.id] || { s: 0, o: 0 }, cb = c[b.id] || { s: 0, o: 0 };
-        if (LM === 'support') { const { sp: sa } = pct(ca.s, ca.o), { sp: sb } = pct(cb.s, cb.o); return sb - sa }
-        if (LM === 'oppose') { const { op: oa } = pct(ca.s, ca.o), { op: ob } = pct(cb.s, cb.o); return ob - oa }
-        return (cb.s + cb.o) - (ca.s + ca.o);
-    });
     const el = document.getElementById('lblist');
     if (!el) return;
-    el.innerHTML = sorted.map((pol, i) => {
-        const cv = c[pol.id] || { s: 0, o: 0 };
-        const { sp, op } = pct(cv.s, cv.o); const total = cv.s + cv.o;
-        const rk = i === 0 ? 'g' : i === 1 ? 's' : i === 2 ? 'b' : '';
-        const barW = LM === 'oppose' ? op : LM === 'support' ? sp : 0;
-        const val = LM === 'votes' ? fmt(total) : (LM === 'oppose' ? op : sp) + '%';
-        const pcls = LM === 'oppose' ? 'go' : LM === 'support' ? 'gs' : 'gn';
-        const bc = LM === 'oppose' ? 'var(--red)' : 'var(--lime)';
-        return `<div class="lb-row" onclick="go('polls')">
-      <div class="lb-rank ${rk}">${i + 1}</div>
-      <div class="lb-av" style="background:${pol.color}">${ini(pol.name)}</div>
-      <div class="lb-info">
-        <div class="lb-name">${pol.name}</div>
-        <div class="lb-det">${pol.party} · ${pol.type} · ${pol.state}</div>
-      </div>
-      <div class="lb-bar-w">
-        <div class="lb-bar"><div class="lb-fill" style="width:${barW}%;background:${bc}"></div></div>
-        <div class="lb-votes">${total === 0 ? 'No votes yet' : fmt(total) + ' total votes'}</div>
-      </div>
-      <div class="lb-pct ${pcls}">${total === 0 ? '—' : val}</div>
-    </div>`;
-    }).join('');
+
+    const sub = document.getElementById('lb-subtitle');
+    if (sub) sub.textContent = `Ranked by grassroots support across all politicians on Pollux. Politicians below the minimum sample of ${MIN_VOTES_OVERALL} votes are listed without a rank.`;
+
+    const party = ((document.getElementById('lb-party') as HTMLSelectElement)?.value || '').trim();
+    const region = ((document.getElementById('lb-region') as HTMLSelectElement)?.value || '').trim();
+    const role = ((document.getElementById('lb-role') as HTMLSelectElement)?.value || '').trim();
+
+    const c = getC();
+    let list = [...POLS];
+    if (role) list = list.filter(p => p.type === role);
+    if (party) list = list.filter(p => p.party === party);
+    if (region) list = list.filter(p => p.region === region);
+
+    const enriched = list.map(p => {
+        const cv = c[p.id] || { s: 0, o: 0, u: 0 };
+        const total = cv.s + cv.o + cv.u;
+        return { p, cv, total, sp: pct(cv.s, cv.o, cv.u).sp };
+    });
+
+    const ranked = enriched.filter(x => x.total >= MIN_VOTES_OVERALL).sort((a, b) => b.sp - a.sp || b.total - a.total);
+    const unranked = enriched.filter(x => x.total < MIN_VOTES_OVERALL).sort((a, b) => b.total - a.total);
+
+    const rankCls = (i: number) => i === 0 ? 'rank-g' : i === 1 ? 'rank-s' : i === 2 ? 'rank-b' : '';
+
+    const rows = [
+        ...ranked.map(({ p, total, sp }, i) => `
+      <div class="lb-row" onclick="openDetail('${p.id}')">
+        <div class="mnum lb-rank ${rankCls(i)}">${String(i + 1).padStart(2, '0')}</div>
+        ${avatar(p, 40)}
+        <div class="lb-info">
+          <div class="lb-name">${p.name}</div>
+          <div class="lb-det">${p.role}, ${p.state}</div>
+        </div>
+        ${partyTag(p)}
+        <div class="lb-data">
+          <div class="mnum lb-pct">${sp}%</div>
+          <div class="lb-track"><div class="lb-fill" style="width:${sp}%"></div></div>
+        </div>
+        <span class="mlabel lb-votes">${fmt(total)} votes</span>
+      </div>`),
+        ...unranked.map(({ p, total }) => `
+      <div class="lb-row lb-row-nodata" onclick="openDetail('${p.id}')">
+        <div class="mnum lb-rank rank-none">..</div>
+        ${avatar(p, 40)}
+        <div class="lb-info">
+          <div class="lb-name">${p.name}</div>
+          <div class="lb-det">${p.role}, ${p.state}</div>
+        </div>
+        ${partyTag(p)}
+        <div class="lb-nodata">
+          <div class="mlabel">Not enough votes</div>
+          <div class="lb-nodata-sub">${total} of ${MIN_VOTES_OVERALL} votes needed</div>
+        </div>
+      </div>`),
+    ];
+
+    el.innerHTML = rows.length ? rows.join('') : `
+      <div class="empty">
+        <p class="empty-title">No politicians match</p>
+        <span class="empty-sub">Try a different filter</span>
+      </div>`;
 }

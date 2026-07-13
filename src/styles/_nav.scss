@@ -1,18 +1,16 @@
-/* ── NAVIGATION ── */
 nav {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-    z-index: 200;
-    height: 60px;
+    z-index: 50;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
+    height: 60px;
     padding: 0 28px;
-    background: rgba(10, 10, 10, 0.92);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
+    background: rgba(10, 10, 10, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-bottom: 1px solid var(--b1);
 }
 
@@ -21,145 +19,117 @@ nav {
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    user-select: none;
 }
 
 .nav-mark {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
     background: var(--lime);
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--f-display);
     font-weight: 800;
-    font-size: 13px;
-    color: #000;
-    letter-spacing: -0.5px;
-    flex-shrink: 0;
+    font-size: 15px;
+    color: var(--void);
 }
 
 .nav-name {
     font-family: var(--f-display);
-    font-weight: 700;
-    font-size: 17px;
+    font-weight: 800;
+    font-size: 16px;
     letter-spacing: -0.6px;
-}
-
-.nav-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 10px;
-    font-weight: 600;
-    background: rgba(132, 204, 22, 0.08);
-    color: var(--lime);
-    border: 1px solid rgba(132, 204, 22, 0.2);
-    border-radius: var(--r-pill);
-    padding: 2px 9px;
-    letter-spacing: 0.3px;
-}
-
-.live-dot {
-    width: 5px;
-    height: 5px;
-    background: var(--lime);
-    border-radius: 50%;
-    flex-shrink: 0;
-    animation: ldot 2s ease-in-out infinite;
-}
-
-@keyframes ldot {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.3;
-        transform: scale(0.7);
-    }
 }
 
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     list-style: none;
+
+    a {
+        display: block;
+        padding: 7px 15px;
+        border-radius: var(--r-pill);
+        color: var(--mu2);
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.15s, background 0.15s;
+
+        &:hover { color: var(--white); }
+
+        &.on {
+            background: var(--s3);
+            color: var(--white);
+        }
+    }
 }
 
-.nav-links a {
-    display: block;
-    text-decoration: none;
-    cursor: pointer;
-    color: var(--mu2);
-    font-size: 13.5px;
-    font-weight: 500;
-    padding: 6px 13px;
-    border-radius: var(--r-sm);
-    transition: all .15s ease;
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
-.nav-links a:hover {
-    color: var(--white);
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.nav-links a.on {
-    color: var(--white);
-    background: var(--s2);
-}
-
-.nav-cta {
-    padding: 8px 20px;
+.nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border: 1px solid var(--b1);
     border-radius: var(--r-pill);
-    background: var(--white);
-    color: #000;
-    border: none;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-    letter-spacing: -0.1px;
 }
 
-.nav-cta:hover {
-    background: #e8e8e8;
-    transform: translateY(-1px);
+.nav-pill-txt {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 1.2px;
+    color: var(--mu1);
+}
+
+.nav-method {
+    background: none;
+    border: 1px solid var(--b2);
+    border-radius: var(--r-pill);
+    color: var(--mu1);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover {
+        color: var(--white);
+        border-color: var(--b3);
+    }
 }
 
 .hbg {
     display: none;
     flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 4px;
+    justify-content: center;
+    gap: 4px;
+    width: 36px;
+    height: 36px;
     background: none;
-    border: none;
-}
+    border: 1px solid var(--b2);
+    border-radius: 9px;
+    cursor: pointer;
+    padding: 0 8px;
 
-.hbg span {
-    width: 20px;
-    height: 1.5px;
-    background: var(--mu2);
-    border-radius: 1px;
-    transition: all .2s;
-    display: block;
-}
+    span {
+        display: block;
+        height: 1.5px;
+        background: var(--mu1);
+        border-radius: 1px;
+        transition: transform 0.2s, opacity 0.2s;
+    }
 
-.hbg.open span:nth-child(1) {
-    transform: translateY(6.5px) rotate(45deg);
-}
-
-.hbg.open span:nth-child(2) {
-    opacity: 0;
-}
-
-.hbg.open span:nth-child(3) {
-    transform: translateY(-6.5px) rotate(-45deg);
+    &.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    &.open span:nth-child(2) { opacity: 0; }
+    &.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 }
 
 .mnav {
@@ -168,28 +138,38 @@ nav {
     top: 60px;
     left: 0;
     right: 0;
+    z-index: 49;
+    flex-direction: column;
     background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(28px);
+    backdrop-filter: blur(24px);
     border-bottom: 1px solid var(--b1);
-    z-index: 199;
+    padding: 10px 16px 18px;
+
+    &.open { display: flex; }
+
+    a {
+        padding: 13px 12px;
+        border-radius: var(--r-sm);
+        color: var(--mu1);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+
+        &.on {
+            background: var(--s3);
+            color: var(--white);
+        }
+    }
 }
 
-.mnav.open {
-    display: block;
-}
-
-.mnav a {
-    display: block;
-    padding: 14px 24px;
-    color: var(--mu2);
-    font-size: 15px;
-    font-weight: 500;
+.mnav-method {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid var(--b2);
+    border-radius: var(--r-pill);
+    color: var(--mu1);
+    font-size: 13px;
+    padding: 11px 16px;
     cursor: pointer;
-    border-bottom: 1px solid var(--b1);
-    transition: color .15s;
-}
-
-.mnav a.on,
-.mnav a:hover {
-    color: var(--white);
+    text-align: center;
 }

@@ -1,10 +1,11 @@
 export type Zone = 'Southwest' | 'Southeast' | 'South-South' | 'Northwest' | 'Northeast' | 'North Central';
 export type Party = 'APC' | 'PDP' | 'Labour' | 'NNPP' | 'APGA' | 'Independent' | 'ADC';
 export type PoliticianType = 'National' | 'Governor' | 'Senator';
-export type VoteDirection = 's' | 'o';
-export type PageId = 'home' | 'polls' | 'lb' | 'rg' | 'about' | 'verdict';
+export type VoteDirection = 's' | 'o' | 'u';
+export type PageId = 'home' | 'polls' | 'lb' | 'rg' | 'detail' | 'pulse';
 export type SortMode = 'trending' | 'supported' | 'opposed' | 'polarising' | 'alpha';
-export type LeaderboardMode = 'support' | 'oppose' | 'votes';
+export type CommentStatus = 'approved' | 'held' | 'pending';
+export type ModerationLabel = 'clean' | 'abusive' | 'spam' | 'incitement';
 
 export interface Politician {
   id: string;
@@ -15,7 +16,6 @@ export interface Politician {
   role: string;
   state: string;
   region: Zone;
-  color: string;
   bio: string;
   seeds: { s: number; o: number };
 }
@@ -23,6 +23,7 @@ export interface Politician {
 export interface VoteCounts {
   s: number;
   o: number;
+  u: number;
 }
 
 export interface CountStore {
@@ -39,6 +40,8 @@ export interface Comment {
   text: string;
   sentiment: VoteDirection | 'neutral';
   ts: number;
+  status: CommentStatus;
+  mine?: boolean;
 }
 
 export interface CommentStore {
@@ -48,15 +51,47 @@ export interface CommentStore {
 export interface PctResult {
   sp: number;
   op: number;
+  up: number;
 }
 
 export interface ZoneDefinition {
   name: Zone;
   states: string;
-  pols: string[];
+  stateCount: number;
 }
 
-export type RegionalBiasMap = {
-  [politicianId: string]: Partial<Record<Zone, number>>;
-};
+export interface ZoneStats {
+  zone: Zone;
+  s: number;
+  o: number;
+  u: number;
+  total: number;
+}
 
+export interface PolZoneStats {
+  politicianId: string;
+  zone: Zone;
+  s: number;
+  o: number;
+  u: number;
+  total: number;
+}
+
+export interface AiInsights {
+  politicianId: string;
+  temperature: number | null;
+  emotions: string[];
+  tempSummary: string | null;
+  digestSupport: string | null;
+  digestOppose: string | null;
+  briefing: string | null;
+  briefingAt: number | null;
+  computedAt: number | null;
+  commentCount: number;
+}
+
+export interface CastVoteResult {
+  ok: boolean;
+  error?: 'cooldown' | 'daily_limit' | 'unknown';
+  retryAfterSeconds?: number;
+}

@@ -1,9 +1,14 @@
-let tTimer: ReturnType<typeof setTimeout> | undefined;
+let toastTimer: number | undefined;
 
-export function showToast(msg: string, col: string = '#84cc16'): void {
-    clearTimeout(tTimer);
-    (document.getElementById('ttxt') as HTMLElement).textContent = msg;
-    (document.getElementById('tpip') as HTMLElement).style.background = col;
-    document.getElementById('toast')!.classList.add('show');
-    tTimer = setTimeout(() => document.getElementById('toast')!.classList.remove('show'), 2600);
+export function showToast(title: string, body = ''): void {
+    const t = document.getElementById('toast');
+    const tt = document.getElementById('toast-title');
+    const tb = document.getElementById('toast-body');
+    if (!t || !tt || !tb) return;
+    tt.textContent = title;
+    tb.textContent = body;
+    tb.style.display = body ? 'block' : 'none';
+    t.classList.add('show');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => t.classList.remove('show'), 3200);
 }

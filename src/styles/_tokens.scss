@@ -1,56 +1,53 @@
-/* ═══════════════════════════════════════════════════════
-   POLLUX — DESIGN SYSTEM
-   Display: Yellix (geometric, tight, bold)
-   UI/Body: Inter (legible, neutral)
-   Theme: Premium Dark Mode · Bento Minimalism
-   Background void: #0A0A0A
-   Surface 1: #111111
-   Surface 2: #161616
-   Border: rgba(255,255,255,0.08)
-═══════════════════════════════════════════════════════ */
-
 :root {
-    /* Void */
     --void: #0A0A0A;
     --s1: #111111;
     --s2: #161616;
     --s3: #1C1C1C;
     --s4: #222222;
 
-    /* Borders — 1px micro-borders only */
     --b1: rgba(255, 255, 255, 0.08);
     --b2: rgba(255, 255, 255, 0.14);
     --b3: rgba(255, 255, 255, 0.20);
 
-    /* Typography */
     --white: #FFFFFF;
     --mu1: #A0A0A0;
     --mu2: #888888;
     --mu3: #555555;
     --mu4: #333333;
 
-    /* Accents — used VERY sparingly */
     --lime: #84cc16;
-    /* primary accent */
     --lime-d: rgba(132, 204, 22, 0.10);
     --lime-b: rgba(132, 204, 22, 0.22);
+    --lime-b2: rgba(132, 204, 22, 0.40);
+
     --red: #ef4444;
     --red-d: rgba(239, 68, 68, 0.10);
     --red-b: rgba(239, 68, 68, 0.22);
+    --red-b2: rgba(239, 68, 68, 0.40);
 
-    /* Radius */
+    --violet: #a78bfa;
+    --violet-d: rgba(167, 139, 250, 0.10);
+    --violet-b: rgba(167, 139, 250, 0.25);
+
+    --und: #3A3A3A;
+
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --gold: #FFD700;
+    --silver: #B8C0CC;
+    --bronze: #CD7F32;
+
     --r-sm: 10px;
-    --r-md: 16px;
-    --r-lg: 24px;
-    --r-xl: 28px;
-    --r-pill: 100px;
+    --r-md: 14px;
+    --r-card: 16px;
+    --r-modal: 20px;
+    --r-pill: 999px;
 
-    /* Fonts */
-   --f-display: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+    --f-display: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
     --f-ui: 'Inter', system-ui, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
-/* ── RESET ── */
 *,
 *::before,
 *::after {
@@ -73,6 +70,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+    background: rgba(132, 204, 22, 0.3);
+}
+
 ::-webkit-scrollbar {
     width: 3px;
 }
@@ -90,4 +91,35 @@ input,
 textarea,
 select {
     font-family: var(--f-ui);
+}
+
+.mlabel {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    color: var(--mu2);
+    text-transform: uppercase;
+}
+
+.mlabel.lime { color: var(--lime); }
+.mlabel.violet { color: var(--violet); }
+
+.mnum {
+    font-family: var(--f-mono);
+    font-weight: 500;
+    color: var(--white);
+}
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+    animation: livePulse 2s ease-in-out infinite;
+    flex-shrink: 0;
 }

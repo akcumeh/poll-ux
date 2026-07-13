@@ -1,8 +1,7 @@
-import { getC, getUV } from '../lib/storage.js';
-import { fmt, pct, ini } from '../lib/helpers.js';
+import { getC } from '../lib/storage.js';
+import { pct } from '../lib/helpers.js';
 import { POLS } from '../data/politicians.js';
 import { card, showSkeletons } from '../ui/card.js';
-import { go } from '../ui/nav.js';
 
 export { showSkeletons };
 export let AF = 'all';
@@ -11,14 +10,16 @@ export function setF(f: string, btn: HTMLElement): void {
     AF = f;
     document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
     if (btn) btn.classList.add('on');
+    document.querySelectorAll(`.fbtn[data-f="${f}"]`).forEach(b => b.classList.add('on'));
     rPolls();
 }
 
 export function rPolls(): void {
+    const q = ((document.getElementById('srch') as HTMLInputElement)?.value || '').toLowerCase().trim();
     const party = ((document.getElementById('sel-party') as HTMLSelectElement)?.value || '').trim();
     const region = ((document.getElementById('sel-region') as HTMLSelectElement)?.value || '').trim();
     const sort = ((document.getElementById('sel-sort') as HTMLSelectElement)?.value || 'trending');
-    const c = getC(), uv = getUV();
+    const c = getC();
 
     let list = [...POLS];
     if (AF === 'National') list = list.filter(p => p.type === 'National');
@@ -26,83 +27,29 @@ export function rPolls(): void {
     else if (AF === 'Senator') list = list.filter(p => p.type === 'Senator');
     if (party) list = list.filter(p => p.party === party);
     if (region) list = list.filter(p => p.region === region);
+    if (q) list = list.filter(p =>
+        p.name.toLowerCase().includes(q) || p.party.toLowerCase().includes(q) ||
+        p.state.toLowerCase().includes(q) || p.role.toLowerCase().includes(q) ||
+        p.region.toLowerCase().includes(q));
 
     list.sort((a, b) => {
-        const ca = c[a.id] || { s: 0, o: 0 }, cb = c[b.id] || { s: 0, o: 0 };
-        if (sort === 'supported') { const { sp: sa } = pct(ca.s, ca.o), { sp: sb } = pct(cb.s, cb.o); return sb - sa; }
-        if (sort === 'opposed') { const { op: oa } = pct(ca.s, ca.o), { op: ob } = pct(cb.s, cb.o); return ob - oa; }
-        if (sort === 'polarising') { const { sp: sa } = pct(ca.s, ca.o), { sp: sb } = pct(cb.s, cb.o); return Math.abs(sa - 50) - Math.abs(sb - 50); }
+        const ca = c[a.id] || { s: 0, o: 0, u: 0 }, cb = c[b.id] || { s: 0, o: 0, u: 0 };
+        const ta = ca.s + ca.o + ca.u, tb = cb.s + cb.o + cb.u;
+        if (sort === 'supported') { const { sp: sa } = pct(ca.s, ca.o, ca.u), { sp: sb } = pct(cb.s, cb.o, cb.u); return sb - sa }
+        if (sort === 'opposed') { const { op: oa } = pct(ca.s, ca.o, ca.u), { op: ob } = pct(cb.s, cb.o, cb.u); return ob - oa }
+        if (sort === 'polarising') { const { sp: sa } = pct(ca.s, ca.o, ca.u), { sp: sb } = pct(cb.s, cb.o, cb.u); return Math.abs(sa - 50) - Math.abs(sb - 50) }
         if (sort === 'alpha') return a.name.localeCompare(b.name);
-        return (cb.s + cb.o) - (ca.s + ca.o);
+        return tb - ta;
     });
 
     const g = document.getElementById('pgrid');
     const cnt = document.getElementById('polls-count');
-    if (cnt) cnt.innerHTML = `<span>${list.length}</span> politician${list.length !== 1 ? 's' : ''} shown`;
+    if (cnt) cnt.innerHTML = `<span class="mnum">${list.length}</span> politician${list.length !== 1 ? 's' : ''} shown`;
     if (g) {
         g.innerHTML = list.length ? list.map(card).join('') : `
       <div class="empty">
-        <div class="empty-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-        <p style="font-size:15px;margin-bottom:4px;font-weight:500">No politicians found</p>
-        <span style="font-size:12.5px;color:var(--mu3)">Try a different filter</span>
+        <p class="empty-title">No politicians found</p>
+        <span class="empty-sub">Try a different search or filter</span>
       </div>`;
     }
-
-    // Scroll to shared politician if URL has ?pol=id
-    const urlPol = new URLSearchParams(location.search).get('pol');
-    if (urlPol) {
-        setTimeout(() => {
-            const el = document.getElementById('pc-' + urlPol);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('shared-highlight');
-                setTimeout(() => el.classList.remove('shared-highlight'), 2500);
-                history.replaceState({}, '', location.pathname);
-            }
-        }, 100);
-    }
-
-    const votes = Object.entries(uv);
-    const yvwrap = document.getElementById('yv-wrap');
-    const yvpills = document.getElementById('yv-pills');
-    const yvcnt = document.getElementById('yv-count');
-    if (yvwrap && yvpills) {
-        if (votes.length > 0) {
-            yvwrap.style.display = 'block';
-            if (yvcnt) yvcnt.textContent = `— ${votes.length} vote${votes.length !== 1 ? 's' : ''}`;
-            yvpills.innerHTML = votes.map(([id, dir]) => {
-                const pol = POLS.find(p => p.id === id); if (!pol) return '';
-                const sc = dir === 's' ? 'yv-pill-s' : 'yv-pill-o';
-                return `<span class="yv-pill ${sc}" onclick="go('polls')">
-          ${dir === 's' ? '↑' : '↓'} ${pol.name.split(' ')[0]}
-          <span class="yv-pill-x">×</span>
-        </span>`;
-            }).join('');
-        } else {
-            yvwrap.style.display = 'none';
-        }
-    }
-
-    const total = POLS.reduce((a, p) => { const cv = c[p.id] || { s: 0, o: 0 }; return a + cv.s + cv.o; }, 0);
-    const sbTotal = document.getElementById('sb-total'); if (sbTotal) sbTotal.textContent = fmt(total);
-    const sbPols = document.getElementById('sb-pols'); if (sbPols) sbPols.textContent = String(POLS.length);
-    const sbYours = document.getElementById('sb-yours'); if (sbYours) sbYours.textContent = String(votes.length);
-
-    const top5 = [...POLS].map(p => {
-        const cv = c[p.id] || { s: 0, o: 0 }; const { sp } = pct(cv.s, cv.o);
-        return { pol: p, sp, total: cv.s + cv.o };
-    }).sort((a, b) => b.total - a.total).slice(0, 5);
-    const sb5 = document.getElementById('sb-top5');
-    if (sb5) {
-        sb5.innerHTML = top5.map(({ pol, sp, total }) => `
-      <div class="sb-row">
-        <div style="display:flex;align-items:center;gap:7px;min-width:0">
-          <div class="av" style="background:${pol.color};width:24px;height:24px;border-radius:6px;font-size:8px;flex-shrink:0">${ini(pol.name)}</div>
-          <span class="sb-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pol.name.split(' ')[0]} ${pol.name.split(' ').slice(-1)[0]}</span>
-        </div>
-        <span class="sb-val" style="color:${sp >= 50 ? 'var(--lime)' : 'var(--red)'}">${total === 0 ? '—' : sp + '%'}</span>
-      </div>`).join('');
-    }
-
-    void go;
 }

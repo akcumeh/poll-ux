@@ -1,41 +1,65 @@
-import { getC, getUV } from '../lib/storage.js';
-import { fmt, pct, totalComments } from '../lib/helpers.js';
+import { getC, getCm } from '../lib/storage.js';
+import { fmt } from '../lib/helpers.js';
+import { MIN_COMMENTS_AI } from '../lib/constants.js';
+import { LIVE } from '../lib/live.js';
 import { POLS } from '../data/politicians.js';
-import { card } from '../ui/card.js';
+import { STATE_ZONES } from '../data/zones.js';
+import { avatar } from '../ui/card.js';
+import { escHtml } from '../lib/helpers.js';
 
 export function rHome(): void {
-    const c = getC(), uv = getUV();
-    const total = POLS.reduce((a, p) => { const cv = c[p.id] || { s: 0, o: 0 }; return a + cv.s + cv.o }, 0);
-    const yvotes = Object.keys(uv).length;
-    const cmtsTotal = totalComments();
+    const c = getC();
+    const cm = getCm();
+    const totalVotes = POLS.reduce((a, p) => {
+        const cv = c[p.id] || { s: 0, o: 0, u: 0 };
+        return a + cv.s + cv.o + cv.u;
+    }, 0);
+    const totalCmts = Object.values(cm).reduce((a, arr) => a + (arr ? arr.filter(x => x.status === 'approved').length : 0), 0);
 
-    // Live counter
-    const n = document.getElementById('lbc-n');
-    if (n) n.innerHTML = `<em>${total === 0 ? '0' : fmt(total)}</em>`;
-    const sub = document.getElementById('lbc-sub');
-    if (sub) sub.textContent = total === 0
-        ? 'Be the first to vote — recorded anonymously on your device'
-        : `${total.toLocaleString()} vote${total !== 1 ? 's' : ''} cast on Pollux`;
+    const stats = document.getElementById('home-stats');
+    if (stats) {
+        stats.innerHTML = [
+            { value: String(POLS.length), label: 'Politicians tracked' },
+            { value: totalVotes === 0 ? '0' : fmt(totalVotes), label: 'Votes recorded' },
+            { value: totalCmts === 0 ? '0' : fmt(totalCmts), label: 'Comments moderated' },
+            { value: String(STATE_ZONES.length), label: 'States and FCT' },
+        ].map(st => `<div class="stat-cell">
+            <div class="mnum stat-n">${st.value}</div>
+            <div class="mlabel stat-l">${st.label}</div>
+          </div>`).join('');
+    }
 
-    const stPols = document.getElementById('st-pols'); if (stPols) stPols.textContent = String(POLS.length);
-    const stYours = document.getElementById('st-yours'); if (stYours) stYours.textContent = String(yvotes);
-    const stCmts = document.getElementById('st-cmts'); if (stCmts) stCmts.textContent = String(cmtsTotal);
+    const heated = document.getElementById('home-heated');
+    if (heated) {
+        const rows = POLS
+            .map(p => ({ p, ins: LIVE.insights[p.id] }))
+            .filter(x => x.ins && x.ins.temperature !== null)
+            .sort((a, b) => (b.ins!.temperature ?? 0) - (a.ins!.temperature ?? 0))
+            .slice(0, 3);
 
-    // Trending — highest total votes
-    const byVol = [...POLS].sort((a, b) => {
-        const ca = c[a.id] || { s: 0, o: 0 }, cb = c[b.id] || { s: 0, o: 0 };
-        return (cb.s + cb.o) - (ca.s + ca.o);
-    });
-    const gt = document.getElementById('g-trend');
-    if (gt) gt.innerHTML = byVol.slice(0, 3).map(card).join('');
-
-    // Polarising — closest to 50/50 split, exclude trending 3
-    const tIds = byVol.slice(0, 3).map(p => p.id);
-    const polar = [...POLS].filter(p => !tIds.includes(p.id)).sort((a, b) => {
-        const ca = c[a.id] || { s: 0, o: 0 }, cb = c[b.id] || { s: 0, o: 0 };
-        const { sp: sa } = pct(ca.s, ca.o), { sp: sb } = pct(cb.s, cb.o);
-        return Math.abs(sa - 50) - Math.abs(sb - 50);
-    });
-    const gp = document.getElementById('g-polar');
-    if (gp) gp.innerHTML = polar.slice(0, 3).map(card).join('');
+        heated.innerHTML = rows.length
+            ? rows.map(({ p, ins }) => {
+                const t = ins!.temperature!;
+                const barColor = t > 70 ? 'var(--amber)' : 'var(--lime)';
+                return `<div class="heat-card" onclick="openDetail('${p.id}')">
+                  <div class="heat-hd">
+                    ${avatar(p, 36)}
+                    <div>
+                      <div class="heat-name">${p.name}</div>
+                      <div class="heat-role">${p.role}</div>
+                    </div>
+                  </div>
+                  <div class="heat-reading">
+                    <span class="mnum heat-temp">${t}</span>
+                    <span class="mlabel">Debate temperature</span>
+                  </div>
+                  <div class="heat-track"><div class="heat-fill" style="width:${t}%;background:${barColor}"></div></div>
+                  <div class="heat-tags">${ins!.emotions.map(e => `<span class="pm-tag">${escHtml(e)}</span>`).join('')}</div>
+                </div>`;
+            }).join('')
+            : `<div class="nodata heat-empty">
+                <div class="nodata-label">No debates analyzed yet</div>
+                <div class="nodata-text">A thread needs ${MIN_COMMENTS_AI} comments before the AI measures its temperature. Start one from any politician's page.</div>
+              </div>`;
+    }
 }

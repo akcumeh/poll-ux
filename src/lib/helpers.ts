@@ -1,7 +1,5 @@
 import type { PctResult } from '../types.js';
-import { getC, getCm } from '../lib/storage.js';
-import { POLS } from '../data/politicians.js';
-import { RB } from '../data/regionalBias.js';
+import { getCm } from '../lib/storage.js';
 
 export function fmt(n: number): string {
     if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
@@ -9,10 +7,15 @@ export function fmt(n: number): string {
     return String(n);
 }
 
-export function pct(s: number, o: number): PctResult {
-    const t = s + o;
-    if (!t) return { sp: 0, op: 0 };
-    return { sp: Math.round(s / t * 100), op: Math.round(o / t * 100) };
+// Tri-state shares of all active votes. Support and oppose round normally;
+// undecided takes the remainder so the three always sum to 100.
+export function pct(s: number, o: number, u: number): PctResult {
+    const t = s + o + u;
+    if (!t) return { sp: 0, op: 0, up: 0 };
+    const sp = Math.round(s / t * 100);
+    const op = Math.round(o / t * 100);
+    const up = Math.max(0, 100 - sp - op);
+    return { sp, op, up };
 }
 
 export function ini(name: string): string {
@@ -28,17 +31,22 @@ export function timeAgo(ts: number): string {
 }
 
 export function tagClass(p: string): string {
-    return ({ APC: 'apc', PDP: 'pdp', 'Labour': 'lp', 'Labour Party': 'lp', NNPP: 'nnpp', APGA: 'apga' } as Record<string, string>)[p] || 'indep';
+    return ({ APC: 'apc', PDP: 'pdp', 'Labour': 'lp', 'Labour Party': 'lp', NNPP: 'nnpp', APGA: 'apga', ADC: 'adc' } as Record<string, string>)[p] || 'indep';
 }
 
-export function rpct(pid: string, zone: string): number {
-    const c = getC(), pol = POLS.find(p => p.id === pid);
-    if (!pol) return 50;
-    const cv = c[pid] || { s: 0, o: 0 };
-    const { sp } = pct(cv.s, cv.o);
-    const b = (RB[pid] && RB[pid][zone as keyof typeof RB[typeof pid]]) || 1.0;
-    if (!cv.s && !cv.o) return 40 + Math.floor(Math.random() * 22);
-    return Math.min(96, Math.max(4, Math.round(sp * (b as number))));
+const PARTY_COLORS: Record<string, string> = {
+    APC: '#84cc16',
+    PDP: '#ef4444',
+    Labour: '#f59e0b',
+    'Labour Party': '#f59e0b',
+    NNPP: '#a78bfa',
+    APGA: '#14b8a6',
+    ADC: '#3b82f6',
+    Independent: '#9ca3af',
+};
+
+export function partyColor(party: string): string {
+    return PARTY_COLORS[party] || '#9ca3af';
 }
 
 export function escHtml(s: string): string {
@@ -47,5 +55,5 @@ export function escHtml(s: string): string {
 
 export function totalComments(): number {
     const cm = getCm();
-    return Object.values(cm).reduce((a, arr) => a + (arr ? arr.length : 0), 0);
+    return Object.values(cm).reduce((a, arr) => a + (arr ? arr.filter(c => c.status === 'approved').length : 0), 0);
 }
