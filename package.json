@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:push": "supabase db push"
   },
   "dependencies": {
+    "@google/genai": "^2.11.0",
     "@supabase/supabase-js": "^2.49.4"
   },
   "devDependencies": {
+    "@vercel/node": "^5.8.23",
     "sass": "^1.86.3",
     "typescript": "^5.7.3",
     "vite": "^6.3.1"
