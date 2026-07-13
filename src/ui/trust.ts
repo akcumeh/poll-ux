@@ -1,11 +1,11 @@
 import type { VoteCounts, VoteDirection, Comment } from '../types.js';
 import { getUV, getCm, getRegion, saveRegion } from '../lib/storage.js';
 import { LIVE, cooldownRemaining } from '../lib/live.js';
-import { MIN_VOTES_OVERALL, MIN_VOTES_ZONE, MIN_COMMENTS_AI, COMMENT_MAX_LENGTH } from '../lib/constants.js';
+import { MIN_COMMENTS_AI, COMMENT_MAX_LENGTH } from '../lib/constants.js';
 import { pct, fmt, timeAgo, escHtml } from '../lib/helpers.js';
 import { STATE_ZONES, zoneOfState } from '../data/zones.js';
 import { castVote } from '../api/votes.js';
-import { submitComment } from '../api/comments.js';
+import { submitComment, purgeExpiredHeld } from '../api/comments.js';
 import { reportComment } from '../api/reports.js';
 import { refresh } from './nav.js';
 
@@ -40,10 +40,10 @@ export function voteToggle(pid: string): string {
     const uv = getUV();
     const cur = uv[pid];
     const deviceState =
-        cur === 's' ? 'This device voted Support' :
-        cur === 'o' ? 'This device voted Oppose' :
-        cur === 'u' ? 'This device voted Undecided' :
-        'This device has not voted';
+        cur === 's' ? 'You voted Support' :
+            cur === 'o' ? 'You voted Oppose' :
+                cur === 'u' ? 'You voted Undecided' :
+                    'You have not voted';
     const cd = cooldownRemaining(pid);
 
     return `<div class="vtoggle">
@@ -203,11 +203,6 @@ export function openMethod(): void {
           <div class="mlabel lime">What we can verify</div>
           <p>Votes are anonymous and tied to a per device identity, so the current confidence level is single session votes. Rate limits and server checks reject rapid or duplicate voting, but Pollux does not verify voter identity and does not predict elections.</p>
         </div>
-        <div class="method-consts">
-          <div><div class="mnum method-const-n">${MIN_VOTES_OVERALL}</div><div class="method-const-l">votes overall</div></div>
-          <div><div class="mnum method-const-n">${MIN_VOTES_ZONE}</div><div class="method-const-l">votes per zone</div></div>
-          <div><div class="mnum method-const-n">${MIN_COMMENTS_AI}</div><div class="method-const-l">comments for AI</div></div>
-        </div>
       </div>
     </div>`;
 }
@@ -216,7 +211,14 @@ export function closeMethod(): void {
     closeModal();
 }
 
+let heldTimer = 0;
+
 export function commentThread(pid: string): string {
+    const nextExpiry = purgeExpiredHeld(pid);
+    window.clearTimeout(heldTimer);
+    if (nextExpiry > 0) {
+        heldTimer = window.setTimeout(refresh, nextExpiry + 500);
+    }
     const cm = getCm();
     const all = (cm[pid] || []).slice().sort((a, b) => a.ts - b.ts);
     const rows = all.map(c => commentRow(c)).join('');
@@ -251,8 +253,8 @@ function commentRow(c: Comment): string {
       </div>
       <p class="crow-text">${escHtml(c.text)}</p>
       ${held
-        ? `<div class="crow-held-note">Held for review. Only you can see this comment until a check completes.</div>`
-        : `<button class="crow-report ${reported ? 'on' : ''}" onclick="reportCommentUI('${c.id}')">${reported ? 'Reported. Thank you' : 'Report'}</button>`}
+            ? `<div class="crow-held-note">Held for review. Only you can see this, and it clears in a bit.</div>`
+            : `<button class="crow-report ${reported ? 'on' : ''}" onclick="reportCommentUI('${c.id}')">${reported ? 'Reported. Thank you' : 'Report'}</button>`}
     </div>`;
 }
 

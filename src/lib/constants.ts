@@ -12,3 +12,4 @@ export const INSIGHTS_NEW_COMMENT_TRIGGER = 5;
 export const BRIEFING_TTL_MS = 24 * 60 * 60 * 1000;
 
 export const COMMENT_MAX_LENGTH = 280;
+export const HELD_VISIBLE_MS = 60_000;

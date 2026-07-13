@@ -67,6 +67,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+    document.body.classList.add('ready');
     getC();
 
     if (urlPol) {

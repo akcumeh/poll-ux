@@ -68,7 +68,7 @@ export function rPulse(): void {
 
 function renderLoading(): void {
     const el = document.getElementById('pulse-body');
-    if (el) el.innerHTML = `<p class="pulse-loading">Loading server side vote activity</p>`;
+    if (el) el.innerHTML = `<p class="pulse-loading">Fetching data</p>`;
 }
 
 function render(): void {
