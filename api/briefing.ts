@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serviceDb } from './_lib/db.js';
 import { getPol } from './_lib/pols.js';
-import { generateGrounded } from './_lib/gemini.js';
+import { generateGrounded, BRIEFING_SYSTEM_PROMPT } from './_lib/gemini.js';
 import { BRIEFING_TTL_MS } from '../src/lib/constants.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -36,10 +36,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
     }
 
-    const prompt = `Write a current, factual, strictly neutral briefing on the Nigerian politician ${pol.name} (${pol.role}, ${pol.party}, ${pol.state} State), grounded in recent search results. Cover, in flowing prose without headings or bullet points, in at most 130 words: their current role and status, the most recent major news or political activity around them, and the main debates or challenges they currently face. Do not praise or condemn. Do not predict election outcomes. Do not invent approval numbers. Plain text only.`;
+    const prompt = `Write a briefing on ${pol.name} (${pol.role}, ${pol.party}, ${pol.state} State).`;
 
     try {
-        const text = (await generateGrounded(prompt)).trim();
+        const text = (await generateGrounded(prompt, BRIEFING_SYSTEM_PROMPT)).trim();
         const generatedAt = new Date().toISOString();
         const { error } = await db.from('poll_ai_insights').upsert({
             politician_id: politicianId,
@@ -53,10 +53,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.status(200).json({ ok: true, briefing: text, generatedAt });
     } catch (err) {
         console.warn('briefing generation failed:', String(err));
-        if (cached?.briefing) {
-            res.status(200).json({ ok: true, briefing: cached.briefing, generatedAt: cached.briefing_at, stale: true });
-            return;
-        }
         res.status(503).json({ ok: false, error: 'unavailable' });
     }
 }

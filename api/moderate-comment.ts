@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serviceDb } from './_lib/db.js';
 import { getPol } from './_lib/pols.js';
-import { generateJson } from './_lib/gemini.js';
+import { generateJson, MODERATION_SYSTEM_PROMPT } from './_lib/gemini.js';
 import { COMMENT_MAX_LENGTH } from '../src/lib/constants.js';
 
 type Label = 'clean' | 'abusive' | 'spam' | 'incitement';
@@ -15,17 +15,10 @@ const SCHEMA = {
 };
 
 async function classify(text: string): Promise<Label | null> {
-    const prompt = `You are moderating an anonymous Nigerian political discussion platform.
-Classify the comment below into exactly one label:
-- clean: ordinary political opinion, agreement, criticism, or debate. Strong political disagreement is clean.
-- abusive: insults, harassment, threats, or degrading language aimed at a person or group.
-- spam: advertising, scams, link farming, repeated gibberish, or off-topic promotion.
-- incitement: calls to violence, or hostility targeting an ethnic or religious group.
-
-Comment:
+    const prompt = `Classify this comment:
 """${text}"""`;
     try {
-        const out = await generateJson<{ label: Label }>(prompt, SCHEMA, 6000);
+        const out = await generateJson<{ label: Label }>(prompt, SCHEMA, MODERATION_SYSTEM_PROMPT, 6000);
         if (out.label === 'clean' || out.label === 'abusive' || out.label === 'spam' || out.label === 'incitement') {
             return out.label;
         }
