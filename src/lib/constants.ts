@@ -1,4 +1,4 @@
-export const MIN_VOTES_OVERALL = 20;
+export const MIN_VOTES_OVERALL = 10;
 export const MIN_VOTES_ZONE = 10;
 export const MIN_COMMENTS_AI = 5;
 
@@ -9,7 +9,7 @@ export const HOURLY_REPORT_CEILING = 20;
 export const INSIGHTS_TTL_MS = 10 * 60 * 1000;
 export const INSIGHTS_NEW_COMMENT_TRIGGER = 5;
 
-export const BRIEFING_TTL_MS = 24 * 60 * 60 * 1000;
+export const BRIEFING_TTL_MS = 60 * 60 * 1000;
 
 export const COMMENT_MAX_LENGTH = 280;
 export const HELD_VISIBLE_MS = 60_000;

@@ -1,13 +1,13 @@
-import { getC } from '../lib/storage.js';
+import { getC, getRegion } from '../lib/storage.js';
 import { fmt, pct } from '../lib/helpers.js';
-import { MIN_VOTES_OVERALL, MIN_VOTES_ZONE } from '../lib/constants.js';
+import { MIN_VOTES_OVERALL, MIN_VOTES_ZONE, BRIEFING_TTL_MS } from '../lib/constants.js';
 import { LIVE } from '../lib/live.js';
 import { POLS } from '../data/politicians.js';
 import { ZONES } from '../data/zones.js';
 import { avatar, partyTag } from '../ui/card.js';
 import {
-    triBar, voteToggle, insufficientData, confidenceBadge,
-    passionMeter, debateDigest, briefingPanel, commentThread, regionPanel,
+    triBar, voteToggle, insufficientData,
+    passionMeter, debateDigest, briefingPanel, commentThread, regionPanel, regionFooterLink,
 } from '../ui/trust.js';
 import { go } from '../ui/nav.js';
 import { refreshInsights, fetchBriefing } from '../api/insights.js';
@@ -30,7 +30,9 @@ export function openDetail(pid: string): void {
 export function toggleBriefing(): void {
     if (!currentPid) return;
     briefingOpen = !briefingOpen;
-    if (briefingOpen && !LIVE.insights[currentPid]?.briefing) {
+    const ins = LIVE.insights[currentPid];
+    const stale = !ins?.briefing || !ins.briefingAt || Date.now() - ins.briefingAt > BRIEFING_TTL_MS;
+    if (briefingOpen && stale) {
         briefingLoading = true;
         fetchBriefing(currentPid).then(() => { briefingLoading = false; });
     }
@@ -82,7 +84,6 @@ export function rDetail(): void {
           <div class="detail-meta">
             <span class="detail-role">${pol.role}, ${pol.state}</span>
             ${partyTag(pol)}
-            ${confidenceBadge()}
           </div>
         </div>
         <div class="detail-actions">
@@ -104,15 +105,25 @@ export function rDetail(): void {
 
       ${debateDigest(pol.id)}
 
-      <div class="detail-grid detail-grid-even">
-        <div class="panel">
-          <div class="mlabel" style="margin-bottom:16px">Support by zone</div>
-          <div class="zrows">${zoneRows}</div>
-          <div class="panel-note" style="margin-top:14px">Zones need ${MIN_VOTES_ZONE} regional votes for this politician before a percentage is shown.</div>
-        </div>
-        ${regionPanel()}
-      </div>
-
       ${commentThread(pol.id)}
+
+      ${zoneSection(zoneRows)}
     `;
+}
+
+function zoneSection(zoneRows: string): string {
+    const region = getRegion();
+    const zonePanel = `<div class="panel">
+      <div class="mlabel" style="margin-bottom:16px">Support by zone</div>
+      <div class="zrows">${zoneRows}</div>
+      <div class="panel-note" style="margin-top:14px">A zone shows a percentage once ${MIN_VOTES_ZONE} people from there have voted on this politician.</div>
+    </div>`;
+
+    if (region === null) {
+        return `<div class="detail-grid detail-grid-even" style="margin-top:32px">${zonePanel}${regionPanel()}</div>`;
+    }
+    if (region.skipped) {
+        return `<div style="margin-top:32px">${zonePanel}</div>${regionFooterLink()}`;
+    }
+    return `<div style="margin-top:32px">${zonePanel}</div>`;
 }

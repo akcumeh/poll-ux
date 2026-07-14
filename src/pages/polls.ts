@@ -1,4 +1,4 @@
-import { getC } from '../lib/storage.js';
+import { getC, getUV } from '../lib/storage.js';
 import { pct } from '../lib/helpers.js';
 import { POLS } from '../data/politicians.js';
 import { card, showSkeletons } from '../ui/card.js';
@@ -41,6 +41,9 @@ export function rPolls(): void {
         if (sort === 'alpha') return a.name.localeCompare(b.name);
         return tb - ta;
     });
+
+    const uv = getUV();
+    list.sort((a, b) => (uv[a.id] ? 1 : 0) - (uv[b.id] ? 1 : 0));
 
     const g = document.getElementById('pgrid');
     const cnt = document.getElementById('polls-count');

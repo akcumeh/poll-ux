@@ -4,6 +4,7 @@ export default defineConfig({
     server: {
         port: process.env.PORT ? Number(process.env.PORT) : 5173,
         host: true,
+        allowedHosts: ['192.168.*']
     },
     build: {
         target: 'es2015',
