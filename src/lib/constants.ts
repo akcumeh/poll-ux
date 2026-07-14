@@ -1,5 +1,5 @@
 export const MIN_VOTES_OVERALL = 10;
-export const MIN_VOTES_ZONE = 10;
+export const MIN_VOTES_ZONE = 5;
 export const MIN_COMMENTS_AI = 5;
 
 export const VOTE_COOLDOWN_SECONDS = 60;

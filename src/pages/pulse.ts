@@ -113,13 +113,13 @@ function render(): void {
             <span class="mnum pulse-now">${sp}%</span>
           </div>`).join('')
         : `<div class="nodata">
-            <div class="nodata-label">No movement yet</div>
-            <div class="nodata-text">No qualifying politician has received votes in this window. Politicians under the ${MIN_VOTES_OVERALL} vote minimum are excluded.</div>
+            <div class="nodata-label">Nothing moving yet</div>
+            <div class="nodata-text">Nobody has picked up votes in this period yet. Politicians with fewer than ${MIN_VOTES_OVERALL} votes overall are not listed here.</div>
           </div>`;
 
     el.innerHTML = `
       <div class="pulse-rows">${list}</div>
       <div class="pulse-method">
-        <span>Methodology: count of vote actions in the selected window, from server side vote timestamps, identical on every device. The percentage shown is current overall support. Politicians under the ${MIN_VOTES_OVERALL} vote minimum are excluded from this list.</span>
+        <span>How this works: we count votes cast in the selected period, and everyone sees the same numbers. The percentage is each politician's current overall support. Politicians with fewer than ${MIN_VOTES_OVERALL} votes are not listed.</span>
       </div>`;
 }

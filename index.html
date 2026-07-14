@@ -63,9 +63,9 @@
             <div class="wrap">
                 <div class="mlabel lime hero-eyebrow">Anonymous, real time, grassroots</div>
                 <h1 class="hero-title">What do Nigerians really think?</h1>
-                <p class="hero-sub">Anonymous real time political sentiment from Nigerians. No account, no agenda.
-                    Every number on this platform is backed by real votes, and where the sample is too small we say
-                    so.</p>
+                <p class="hero-sub">Vote on presidents, governors and senators, as many as you have opinions about.
+                    No account, no agenda, completely anonymous. Every number here comes from real votes, and where
+                    the votes are too few we say so.</p>
                 <div class="hero-actions">
                     <button class="btn-solid" onclick="go('polls')">Vote now</button>
                     <button class="btn-ghost" onclick="go('lb')">View rankings</button>
@@ -85,19 +85,19 @@
                 <div class="entry-grid">
                     <div class="entry-card" onclick="go('polls')">
                         <div class="entry-title">Polls</div>
-                        <div class="entry-desc">Browse every tracked politician and cast an anonymous vote.</div>
+                        <div class="entry-desc">Every politician we track. Vote on any of them, anonymously.</div>
                     </div>
                     <div class="entry-card" onclick="go('lb')">
                         <div class="entry-title">Leaderboard</div>
-                        <div class="entry-desc">Rankings by grassroots support, with honest sample sizes.</div>
+                        <div class="entry-desc">Who Nigerians are backing right now, ranked.</div>
                     </div>
                     <div class="entry-card" onclick="go('rg')">
                         <div class="entry-title">Regions</div>
-                        <div class="entry-desc">Sentiment by zone, built only from real regional votes.</div>
+                        <div class="entry-desc">How each geopolitical zone is leaning.</div>
                     </div>
                     <div class="entry-card" onclick="go('pulse')">
                         <div class="entry-title">Pulse</div>
-                        <div class="entry-desc">The biggest movers today, this week and this month.</div>
+                        <div class="entry-desc">The most talked about politicians right now.</div>
                     </div>
                 </div>
             </div>
@@ -107,8 +107,8 @@
         <div class="page" id="pg-polls">
             <div class="wrap">
                 <h1 class="page-title">Polls</h1>
-                <p class="page-sub">Every vote is anonymous and tied to this device. You can change or retract any
-                    vote at any time.</p>
+                <p class="page-sub">Vote on as many politicians as you like. It is all anonymous, and you can change
+                    or take back any vote whenever you feel like it.</p>
                 <div class="filter-row">
                     <div class="sbox">
                         <input type="search" class="sin" id="srch" placeholder="Search politicians" oninput="rPolls()"
@@ -156,7 +156,8 @@
         <div class="page" id="pg-lb">
             <div class="wrap wrap-narrow">
                 <h1 class="page-title">Leaderboard</h1>
-                <p class="page-sub" id="lb-subtitle">Ranked by grassroots support across all politicians on Pollux.</p>
+                <p class="page-sub" id="lb-subtitle">Who Nigerians are backing right now. Politicians without enough
+                    votes yet sit at the bottom, unranked.</p>
                 <div class="filter-row">
                     <select class="sel-filter" id="lb-role" onchange="rLb()" aria-label="Filter by role">
                         <option value="">All roles</option>
@@ -191,12 +192,12 @@
         <div class="page" id="pg-rg">
             <div class="wrap">
                 <h1 class="page-title">Regions</h1>
-                <p class="page-sub">Sentiment by geopolitical zone, computed only from votes where the voter chose to
-                    share their state. Zones below the minimum sample of 20 regional votes show no percentage.</p>
+                <p class="page-sub">How each geopolitical zone is leaning, using only votes from people who told us
+                    their state. Zones with too few votes show no percentage at all.</p>
                 <button class="quiet-link rg-method" onclick="openMethod()">How regional numbers work</button>
                 <div class="rg-grid" id="rggrid"></div>
-                <p class="rg-foot">Sharing a state is optional. Votes without a state count toward national totals but
-                    never toward a zone. Pollux never fills a missing regional number with an estimate.</p>
+                <p class="rg-foot">Sharing your state is optional. Votes without a state still count nationally, they
+                    just do not show up here. We never fill a gap with an estimate.</p>
             </div>
         </div>
 
@@ -209,8 +210,7 @@
         <div class="page" id="pg-pulse">
             <div class="wrap wrap-narrow">
                 <h1 class="page-title">Pulse</h1>
-                <p class="page-sub">The most active politicians by real vote movement, computed on the server from
-                    timestamped votes so every device sees the same numbers.</p>
+                <p class="page-sub">The most talked about politicians right now, going by the votes coming in.</p>
                 <div class="pulse-tabs">
                     <button class="pulse-tab" onclick="setPulse('day',this)">Today</button>
                     <button class="pulse-tab on" onclick="setPulse('week',this)">This week</button>
