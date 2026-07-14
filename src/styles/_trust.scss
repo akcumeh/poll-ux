@@ -148,16 +148,6 @@
     line-height: 1.5;
 }
 
-.conf-badge {
-    font-size: 11px;
-    color: var(--mu3);
-    border: 1px solid var(--b1);
-    border-radius: var(--r-pill);
-    padding: 3px 10px;
-    white-space: nowrap;
-    cursor: default;
-}
-
 .cthread { margin-top: 32px; }
 
 .cthread-hd {
@@ -416,3 +406,29 @@
 
 .digest-sup .digest-title { color: var(--lime); }
 .digest-opp .digest-title { color: var(--red); }
+
+.region-footer {
+    margin-top: 28px;
+    text-align: center;
+}
+
+.crow-rejected-note {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1.5;
+}
+
+.cform-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cform .btn-solid:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nodata + .vtoggle {
+    margin-top: 12px;
+}

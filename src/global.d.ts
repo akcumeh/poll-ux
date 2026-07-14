@@ -15,6 +15,7 @@ declare global {
         regionSkip: (...args: any[]) => any;
         regionSaveInline: (...args: any[]) => any;
         regionSkipInline: (...args: any[]) => any;
+        openRegionPromptUI: (...args: any[]) => any;
         go: (...args: any[]) => any;
         setF: (...args: any[]) => any;
         setPulse: (...args: any[]) => any;

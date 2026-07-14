@@ -20,6 +20,7 @@ import { go, toggleMnav, closeMnav } from './ui/nav.js';
 import {
     doVote, retractVote, submitCommentUI, reportCommentUI,
     openMethod, closeMethod, regionSave, regionSkip, regionSaveInline, regionSkipInline,
+    openRegionPromptUI,
 } from './ui/trust.js';
 
 window.doVote = doVote;
@@ -35,6 +36,7 @@ window.regionSave = regionSave;
 window.regionSkip = regionSkip;
 window.regionSaveInline = regionSaveInline;
 window.regionSkipInline = regionSkipInline;
+window.openRegionPromptUI = openRegionPromptUI;
 window.go = go;
 window.setF = setF;
 window.setPulse = setPulse;

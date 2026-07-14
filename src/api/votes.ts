@@ -136,7 +136,7 @@ export async function castVote(pid: string, type: VoteDirection): Promise<void> 
         c[pid][type]++;
         uv[pid] = type;
         const label = type === 's' ? 'Support' : type === 'o' ? 'Opposition' : 'Undecided';
-        showToast(label + ' recorded', 'Anonymous, on this device. You can change it anytime.');
+        showToast(label + ' recorded', 'Anonymous. You can change it anytime.');
     }
     lv[pid] = now;
     saveC(c); saveUV(uv); saveLV(lv); refresh();

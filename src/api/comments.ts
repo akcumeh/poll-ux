@@ -2,6 +2,7 @@ import type { VoteDirection, Comment } from '../types.js';
 import { callApi } from '../lib/apiClient.js';
 import { getUV, getCm, saveCm, getHeld, saveHeld, getHandle, getUID } from '../lib/storage.js';
 import { COMMENT_MAX_LENGTH, HELD_VISIBLE_MS } from '../lib/constants.js';
+import { LIVE } from '../lib/live.js';
 import { showToast } from '../ui/toast.js';
 import { refresh } from '../ui/nav.js';
 
@@ -13,7 +14,32 @@ export async function submitComment(pid: string, text: string): Promise<void> {
     const rawVote = uv[pid] as VoteDirection | undefined;
     const sentiment: VoteDirection | 'neutral' = rawVote ?? 'neutral';
 
-    showToast('Comment submitted', 'A quick automated check runs before it goes live.');
+    const tempId = 'pending_' + Date.now();
+    const pending: Comment = {
+        id: tempId,
+        voter: handle,
+        text: commentText,
+        sentiment,
+        ts: Date.now(),
+        status: 'pending',
+        mine: true,
+    };
+    const cm = getCm();
+    if (!cm[pid]) cm[pid] = [];
+    cm[pid].push(pending);
+    saveCm(cm);
+    refresh();
+
+    const removePending = () => {
+        const store = getCm();
+        const arr = store[pid] || [];
+        const idx = arr.findIndex(c => c.id === tempId);
+        if (idx >= 0) {
+            arr.splice(idx, 1);
+            saveCm(store);
+        }
+        return { store, arr };
+    };
 
     try {
         const { ok, data } = await callApi<{ id: string; status: string; createdAt: string }>('moderate-comment', {
@@ -25,7 +51,9 @@ export async function submitComment(pid: string, text: string): Promise<void> {
         });
 
         if (!ok || !data) {
+            removePending();
             showToast('Comment not posted', 'The server could not be reached. Please try again.');
+            refresh();
             return;
         }
 
@@ -39,21 +67,25 @@ export async function submitComment(pid: string, text: string): Promise<void> {
             mine: true,
         };
 
-        const cm = getCm();
-        if (!cm[pid]) cm[pid] = [];
-        if (!cm[pid].some(c => c.id === comment.id)) cm[pid].push(comment);
-        saveCm(cm);
+        const { store, arr } = removePending();
+        if (!arr.some(c => c.id === comment.id)) {
+            arr.push(comment);
+            saveCm(store);
+        }
 
         if (comment.status === 'held') {
             const held = getHeld();
             if (!held[pid]) held[pid] = [];
             held[pid].push(comment);
             saveHeld(held);
+            LIVE.commentBlocked[pid] = Date.now() + 60 * 1000;
         }
         refresh();
     } catch (err) {
         console.warn('Comment submit failed:', err);
+        removePending();
         showToast('Comment not posted', 'The server could not be reached. Please try again.');
+        refresh();
     }
 }
 
