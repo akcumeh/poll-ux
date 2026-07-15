@@ -1,7 +1,7 @@
 import type { VoteCounts, VoteDirection, Comment } from '../types.js';
 import { getUV, getCm, getRegion, saveRegion } from '../lib/storage.js';
 import { LIVE, cooldownRemaining, commentBlockRemaining } from '../lib/live.js';
-import { MIN_COMMENTS_AI, COMMENT_MAX_LENGTH, BRIEFING_TTL_MS } from '../lib/constants.js';
+import { MIN_COMMENTS_AI, COMMENT_MAX_LENGTH, BRIEFING_REFRESH_SHOW_MS, currentHourStart } from '../lib/constants.js';
 import { pct, fmt, timeAgo, escHtml } from '../lib/helpers.js';
 import { STATE_ZONES, zoneOfState } from '../data/zones.js';
 import { castVote } from '../api/votes.js';
@@ -259,8 +259,8 @@ export function commentThread(pid: string): string {
 }
 
 function commentRow(c: Comment): string {
-    const dirLabel = c.sentiment === 's' ? 'Supports' : c.sentiment === 'o' ? 'Opposes' : 'Undecided';
-    const dirCls = c.sentiment === 's' ? 'cdir-s' : c.sentiment === 'o' ? 'cdir-o' : 'cdir-u';
+    const dirLabel = c.sentiment === 's' ? 'Supports' : c.sentiment === 'o' ? 'Opposes' : c.sentiment === 'u' ? 'Undecided' : 'Not voted yet';
+    const dirCls = c.sentiment === 's' ? 'cdir-s' : c.sentiment === 'o' ? 'cdir-o' : c.sentiment === 'u' ? 'cdir-u' : 'cdir-n';
     const reported = !!LIVE.reported[c.id];
 
     let foot: string;
@@ -345,10 +345,13 @@ export function debateDigest(pid: string): string {
     </div>`;
 }
 
+const REFRESH_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>`;
+
+let briefingBtnTimer = 0;
+
 export function briefingPanel(pid: string, loading: boolean): string {
     const ins = LIVE.insights[pid];
-    const fresh = !!ins?.briefing && !!ins.briefingAt && Date.now() - ins.briefingAt < BRIEFING_TTL_MS;
-    if (!fresh) {
+    if (!ins?.briefing || !ins.briefingAt) {
         if (loading) {
             return `<div class="panel briefing">
               <div class="panel-hd">${aiLabel('AI generated briefing, grounded in search')}</div>
@@ -357,13 +360,29 @@ export function briefingPanel(pid: string, loading: boolean): string {
         }
         return '';
     }
-    const when = ins!.briefingAt ? timeAgo(ins!.briefingAt).toUpperCase() : '';
+
+    const age = Date.now() - ins.briefingAt;
+    const hourStart = currentHourStart();
+    const nextHour = hourStart + 60 * 60 * 1000;
+    let refreshBtn = '';
+    window.clearTimeout(briefingBtnTimer);
+    if (age < BRIEFING_REFRESH_SHOW_MS) {
+        briefingBtnTimer = window.setTimeout(refresh, BRIEFING_REFRESH_SHOW_MS - age + 250);
+    } else if (ins.briefingAt >= hourStart) {
+        const hourLabel = new Date(nextHour).toLocaleTimeString('en-NG', { hour: 'numeric' });
+        briefingBtnTimer = window.setTimeout(refresh, nextHour - Date.now() + 1000);
+        refreshBtn = `<button class="refresh-btn" disabled title="Please wait until ${hourLabel} to request a new briefing.">${REFRESH_ICON}</button>`;
+    } else {
+        refreshBtn = `<button class="refresh-btn" onclick="refreshBriefing()" title="Fetch a fresh briefing">${REFRESH_ICON}</button>`;
+    }
+
+    const when = age < 60 * 1000 ? '1M AGO' : timeAgo(ins.briefingAt).toUpperCase();
     return `<div class="panel briefing">
       <div class="panel-hd">
         ${aiLabel('AI generated briefing, grounded in search')}
-        ${when ? `<span class="mlabel">Generated ${when}</span>` : ''}
+        <span class="briefing-when">${refreshBtn}<span class="mlabel">Generated ${when}</span></span>
       </div>
-      <p class="briefing-body">${escHtml(ins!.briefing!)}</p>
+      <p class="briefing-body">${escHtml(ins.briefing)}</p>
       <button class="quiet-link" onclick="openMethod()">What this is and is not</button>
     </div>`;
 }

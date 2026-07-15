@@ -6,6 +6,7 @@ declare global {
         retractVote: (...args: any[]) => any;
         openDetail: (...args: any[]) => any;
         toggleBriefing: (...args: any[]) => any;
+        refreshBriefing: (...args: any[]) => any;
         shareCard: (...args: any[]) => any;
         submitCommentUI: (...args: any[]) => any;
         reportCommentUI: (...args: any[]) => any;

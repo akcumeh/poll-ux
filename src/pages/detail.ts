@@ -1,6 +1,6 @@
 import { getC, getRegion } from '../lib/storage.js';
 import { fmt, pct } from '../lib/helpers.js';
-import { MIN_VOTES_OVERALL, MIN_VOTES_ZONE, BRIEFING_TTL_MS } from '../lib/constants.js';
+import { MIN_VOTES_OVERALL, MIN_VOTES_ZONE, currentHourStart } from '../lib/constants.js';
 import { LIVE } from '../lib/live.js';
 import { POLS } from '../data/politicians.js';
 import { ZONES } from '../data/zones.js';
@@ -27,12 +27,36 @@ export function openDetail(pid: string): void {
     refreshInsights(pid);
 }
 
+export function refreshBriefing(): void {
+    if (!currentPid) return;
+    briefingLoading = true;
+    const ins = LIVE.insights[currentPid];
+    if (ins) {
+        ins.briefing = null;
+        ins.briefingAt = null;
+    }
+    fetchBriefing(currentPid).then(() => { briefingLoading = false; });
+    rDetail();
+}
+
 export function toggleBriefing(): void {
     if (!currentPid) return;
     briefingOpen = !briefingOpen;
+
+    if (!briefingOpen) {
+        const el = document.querySelector('.briefing');
+        if (el) {
+            el.classList.add('briefing-out');
+            window.setTimeout(rDetail, 240);
+            return;
+        }
+        rDetail();
+        return;
+    }
+
     const ins = LIVE.insights[currentPid];
-    const stale = !ins?.briefing || !ins.briefingAt || Date.now() - ins.briefingAt > BRIEFING_TTL_MS;
-    if (briefingOpen && stale) {
+    const stale = !ins?.briefing || !ins.briefingAt || ins.briefingAt < currentHourStart();
+    if (stale) {
         briefingLoading = true;
         fetchBriefing(currentPid).then(() => { briefingLoading = false; });
     }
@@ -67,10 +91,13 @@ export function rDetail(): void {
         const zs = LIVE.polZoneStats.find(s => s.politicianId === pol.id && s.zone === z.name);
         const zTotal = zs ? zs.total : 0;
         const zHasData = zs && zTotal >= MIN_VOTES_ZONE;
+        const bar = zHasData
+            ? triBar({ s: zs!.s, o: zs!.o, u: zs!.u }, 'sm')
+            : `<div class="zrow-track"></div>`;
         const zSp = zHasData ? pct(zs!.s, zs!.o, zs!.u).sp : 0;
         return `<div class="zrow">
           <span class="zrow-name">${z.name}</span>
-          <div class="zrow-track"><div class="zrow-fill" style="width:${zHasData ? zSp : 0}%"></div></div>
+          <div class="zrow-bar">${bar}</div>
           <span class="mnum zrow-val">${zHasData ? zSp + '%' : 'no data'}</span>
         </div>`;
     }).join('');

@@ -6,7 +6,7 @@ import { rPolls, setF, showSkeletons } from './pages/polls.js';
 import { rLb } from './pages/leaderboard.js';
 import { rRg } from './pages/regions.js';
 import { rPulse, setPulse } from './pages/pulse.js';
-import { rDetail, openDetail, toggleBriefing } from './pages/detail.js';
+import { rDetail, openDetail, toggleBriefing, refreshBriefing } from './pages/detail.js';
 
 RENDERERS.home = rHome;
 RENDERERS.polls = rPolls;
@@ -27,6 +27,7 @@ window.doVote = doVote;
 window.retractVote = retractVote;
 window.openDetail = openDetail;
 window.toggleBriefing = toggleBriefing;
+window.refreshBriefing = refreshBriefing;
 window.shareCard = shareCard;
 window.submitCommentUI = submitCommentUI;
 window.reportCommentUI = reportCommentUI;
