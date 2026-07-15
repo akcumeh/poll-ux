@@ -8,9 +8,14 @@
           content="Pollux is anonymous, real time Nigerian political sentiment. Every number is backed by real votes, and where the sample is too small, we say so.">
     <meta property="og:title" content="Pollux NG" />
     <meta property="og:description"
-          content="Anonymous real-time Nigerian political sentiment. Vote on presidents, governors and senators." />
+          content="Anonymous Nigerian political sentiment tracker. Vote on your favorite or most hated politicians." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pollux-ng.vercel.app/" />
+    <meta property="og:image" content="https://pollux-ng.vercel.app/pollux-og-image.png" />
+    <meta property="og:image:width" content="1919" />
+    <meta property="og:image:height" content="911" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://pollux-ng.vercel.app/pollux-og-image.png" />
     <title>Pollux: Nigerian Political Sentiment</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
@@ -40,8 +45,7 @@
             <li><a onclick="go('pulse')" id="nl-pulse">Pulse</a></li>
         </ul>
         <div class="nav-right">
-            <div class="nav-pill"><span class="live-dot"></span><span class="nav-pill-txt">LIVE</span></div>
-            <button class="nav-method" onclick="openMethod()">How we calculate this</button>
+            <button class="nav-method" onclick="openMethod()">How?</button>
             <button class="hbg" id="hbg" onclick="toggleMnav()" aria-expanded="false" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
@@ -63,9 +67,7 @@
             <div class="wrap">
                 <div class="mlabel lime hero-eyebrow">Anonymous, real time, grassroots</div>
                 <h1 class="hero-title">What do Nigerians really think?</h1>
-                <p class="hero-sub">Vote on presidents, governors and senators, as many as you have opinions about.
-                    No account, no agenda, completely anonymous. Every number here comes from real votes, and where
-                    the votes are too few we say so.</p>
+                <p class="hero-sub">Let's cut out the noise for a bit. How do YOU actually feel about the current Nigerian political landscape? Share your opinions in comments and votes on notable politicians.</p>
                 <div class="hero-actions">
                     <button class="btn-solid" onclick="go('polls')">Vote now</button>
                     <button class="btn-ghost" onclick="go('lb')">View rankings</button>
@@ -108,7 +110,8 @@
             <div class="wrap">
                 <h1 class="page-title">Polls</h1>
                 <p class="page-sub">Vote on as many politicians as you like. It is all anonymous, and you can change
-                    or take back any vote whenever you feel like it.</p>
+                    or take back any vote whenever you feel like it. Click on any politician here to go to their page and leave a comment.
+                </p>
                 <div class="filter-row">
                     <div class="sbox">
                         <input type="search" class="sin" id="srch" placeholder="Search politicians" oninput="rPolls()"
