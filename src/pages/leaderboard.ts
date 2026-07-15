@@ -9,7 +9,7 @@ export function rLb(): void {
     if (!el) return;
 
     const sub = document.getElementById('lb-subtitle');
-    if (sub) sub.textContent = `Ranked by grassroots support across all politicians on Pollux. Politicians below the minimum sample of ${MIN_VOTES_OVERALL} votes are listed without a rank.`;
+    if (sub) sub.textContent = `The most popular names and where they stand, most voted first. Politicians with fewer than ${MIN_VOTES_OVERALL} votes sit at the bottom, unranked.`;
 
     const party = ((document.getElementById('lb-party') as HTMLSelectElement)?.value || '').trim();
     const region = ((document.getElementById('lb-region') as HTMLSelectElement)?.value || '').trim();
@@ -27,7 +27,7 @@ export function rLb(): void {
         return { p, cv, total, sp: pct(cv.s, cv.o, cv.u).sp };
     });
 
-    const ranked = enriched.filter(x => x.total >= MIN_VOTES_OVERALL).sort((a, b) => b.sp - a.sp || b.total - a.total);
+    const ranked = enriched.filter(x => x.total >= MIN_VOTES_OVERALL).sort((a, b) => b.total - a.total || b.sp - a.sp);
     const unranked = enriched.filter(x => x.total < MIN_VOTES_OVERALL).sort((a, b) => b.total - a.total);
 
     const rankCls = (i: number) => i === 0 ? 'rank-g' : i === 1 ? 'rank-s' : i === 2 ? 'rank-b' : '';

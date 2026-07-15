@@ -1,6 +1,6 @@
-import { getC, getCm } from '../lib/storage.js';
-import { fmt } from '../lib/helpers.js';
-import { MIN_COMMENTS_AI } from '../lib/constants.js';
+import { getC } from '../lib/storage.js';
+import { pct } from '../lib/helpers.js';
+import { MIN_COMMENTS_AI, MIN_VOTES_OVERALL } from '../lib/constants.js';
 import { LIVE } from '../lib/live.js';
 import { POLS } from '../data/politicians.js';
 import { STATE_ZONES } from '../data/zones.js';
@@ -9,19 +9,24 @@ import { escHtml } from '../lib/helpers.js';
 
 export function rHome(): void {
     const c = getC();
-    const cm = getCm();
-    const totalVotes = POLS.reduce((a, p) => {
-        const cv = c[p.id] || { s: 0, o: 0, u: 0 };
-        return a + cv.s + cv.o + cv.u;
-    }, 0);
-    const totalCmts = Object.values(cm).reduce((a, arr) => a + (arr ? arr.filter(x => x.status === 'approved').length : 0), 0);
+
+    const qualified = POLS
+        .map(p => {
+            const cv = c[p.id] || { s: 0, o: 0, u: 0 };
+            const total = cv.s + cv.o + cv.u;
+            return { p, total, ...pct(cv.s, cv.o, cv.u) };
+        })
+        .filter(x => x.total >= MIN_VOTES_OVERALL);
+    const mostSupported = qualified.slice().sort((a, b) => b.sp - a.sp || b.total - a.total)[0];
+    const mostOpposed = qualified.slice().sort((a, b) => b.op - a.op || b.total - a.total)[0];
+    const surname = (name: string) => name.split(' ').slice(-1)[0];
 
     const stats = document.getElementById('home-stats');
     if (stats) {
         stats.innerHTML = [
-            { value: String(POLS.length), label: 'Politicians tracked' },
-            { value: totalVotes === 0 ? '0' : fmt(totalVotes), label: 'Votes recorded' },
-            { value: totalCmts === 0 ? '0' : fmt(totalCmts), label: 'Comments moderated' },
+            { value: String(POLS.length), label: 'Politicians listed' },
+            { value: mostSupported ? surname(mostSupported.p.name) : 'Too early', label: 'Most supported' },
+            { value: mostOpposed ? surname(mostOpposed.p.name) : 'Too early', label: 'Most opposed' },
             { value: String(STATE_ZONES.length), label: 'States and FCT' },
         ].map(st => `<div class="stat-cell">
             <div class="mnum stat-n">${st.value}</div>

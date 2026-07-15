@@ -432,3 +432,83 @@
 .nodata + .vtoggle {
     margin-top: 12px;
 }
+
+@keyframes easeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinOnce {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-180deg); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(180deg); }
+}
+
+.page.on .wrap {
+    animation: easeIn 250ms ease;
+}
+
+.briefing {
+    animation: easeIn 250ms ease;
+}
+
+.briefing-when {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.refresh-btn {
+    background: none;
+    border: 1px solid var(--b2);
+    border-radius: var(--r-pill);
+    color: var(--mu1);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    animation: easeIn 250ms ease;
+    flex-shrink: 0;
+
+    svg {
+        animation: spinOnce 500ms ease;
+    }
+
+    &:hover:not(:disabled) svg,
+    &:active:not(:disabled) svg {
+        animation: spin 500ms linear;
+    }
+
+    &:hover:not(:disabled) {
+        color: var(--white);
+        border-color: var(--b3);
+    }
+
+    &:disabled {
+        color: var(--mu4);
+        cursor: not-allowed;
+    }
+}
+
+.cdir-n {
+    color: var(--mu3);
+    border-color: var(--b1);
+}
+
+.zrow-bar {
+    flex: 1;
+
+    .tribar { width: 100%; }
+}
+
+@media (max-width: 720px) {
+    .briefing-when {
+        flex-direction: row-reverse;
+    }
+}
