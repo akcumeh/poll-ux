@@ -375,6 +375,12 @@
     }
 }
 
+.method-disclaimer {
+    margin-bottom: 0;
+
+    p + p { margin-top: 10px; }
+}
+
 .method-consts {
     border: 1px solid var(--b1);
     border-radius: 12px;

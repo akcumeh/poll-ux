@@ -217,6 +217,41 @@ export function closeMethod(): void {
     closeModal();
 }
 
+export function openAbout(): void {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+    root.innerHTML = `<div class="modal-overlay" onclick="closeAbout()">
+      <div class="modal modal-wide" onclick="event.stopPropagation()">
+        <div class="modal-hd">
+          <h2 class="modal-title">About Pollux</h2>
+          <button class="btn-ghost btn-sm" onclick="closeAbout()">Close</button>
+        </div>
+        <p class="panel-body" style="margin-bottom:20px">Anonymous, real time Nigerian political sentiment. Vote, comment, and see what the country is actually saying, across all 36 states and the FCT.</p>
+        <div class="method-sec">
+          <div class="mlabel lime">Anonymous by design</div>
+          <p>No accounts, no emails, no signup, nothing. </p>
+        </div>
+        <div class="method-sec">
+          <div class="mlabel lime">Real time</div>
+          <p>Rankings and regional breakdowns update as votes and comments come in.</p>
+        </div>
+        <div class="method-sec">
+          <div class="mlabel violet">AI, labeled everywhere it appears</div>
+          <p>Briefings, the Passion Meter and Debate Digest are all written by Google Gemini, always marked as AI, never mixed in with vote data.</p>
+        </div>
+        <div class="method-sec method-disclaimer">
+          <div class="mlabel">A note on this platform</div>
+          <p>Pollux does not predict election outcomes. It is an opinion tracker, a pulse check on public sentiment from people who choose to take part, and it may not reflect the wider Nigerian electorate.</p>
+          <p>Politician information is drawn from publicly available records. Pollux is independent and non-partisan, with no affiliation to INEC or any political party.</p>
+        </div>
+      </div>
+    </div>`;
+}
+
+export function closeAbout(): void {
+    closeModal();
+}
+
 let heldTimer = 0;
 let blockTimer = 0;
 

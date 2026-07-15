@@ -19,7 +19,7 @@ import { shareCard } from './ui/card.js';
 import { go, toggleMnav, closeMnav } from './ui/nav.js';
 import {
     doVote, retractVote, submitCommentUI, reportCommentUI,
-    openMethod, closeMethod, regionSave, regionSkip, regionSaveInline, regionSkipInline,
+    openMethod, closeMethod, openAbout, closeAbout, regionSave, regionSkip, regionSaveInline, regionSkipInline,
     openRegionPromptUI,
 } from './ui/trust.js';
 
@@ -33,6 +33,8 @@ window.submitCommentUI = submitCommentUI;
 window.reportCommentUI = reportCommentUI;
 window.openMethod = openMethod;
 window.closeMethod = closeMethod;
+window.openAbout = openAbout;
+window.closeAbout = closeAbout;
 window.regionSave = regionSave;
 window.regionSkip = regionSkip;
 window.regionSaveInline = regionSaveInline;

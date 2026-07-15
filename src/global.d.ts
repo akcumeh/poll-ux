@@ -12,6 +12,8 @@ declare global {
         reportCommentUI: (...args: any[]) => any;
         openMethod: (...args: any[]) => any;
         closeMethod: (...args: any[]) => any;
+        openAbout: (...args: any[]) => any;
+        closeAbout: (...args: any[]) => any;
         regionSave: (...args: any[]) => any;
         regionSkip: (...args: any[]) => any;
         regionSaveInline: (...args: any[]) => any;
