@@ -64,7 +64,7 @@ export async function submitComment(pid: string, text: string): Promise<void> {
             text: commentText,
             sentiment,
             ts: data.createdAt ? new Date(data.createdAt).getTime() : Date.now(),
-            status: data.status === 'held' ? 'held' : 'approved',
+            status: data.status === 'held' ? 'held' : data.status === 'pending' ? 'pending' : 'approved',
             mine: true,
         };
 
@@ -80,8 +80,10 @@ export async function submitComment(pid: string, text: string): Promise<void> {
             held[pid].push(comment);
             saveHeld(held);
             LIVE.commentBlocked[pid] = Date.now() + 60 * 1000;
-        } else {
+        } else if (comment.status === 'approved') {
             refreshInsights(pid, true);
+        } else {
+            pollPendingComment(pid, comment.id);
         }
         refresh();
     } catch (err) {
@@ -90,6 +92,55 @@ export async function submitComment(pid: string, text: string): Promise<void> {
         showToast('Comment not posted', 'The server could not be reached. Please try again.');
         refresh();
     }
+}
+
+const PENDING_POLL_MS = 20 * 1000;
+const PENDING_POLL_MAX_TRIES = 15;
+
+function pollPendingComment(pid: string, commentId: string, tries = 0): void {
+    if (tries >= PENDING_POLL_MAX_TRIES) return;
+    window.setTimeout(async () => {
+        const { ok, data } = await callApi<{ statuses: Record<string, string> }>('comment-status', {
+            uid: getUID(),
+            ids: [commentId],
+        });
+        const status = ok && data ? data.statuses[commentId] : undefined;
+
+        if (status === 'approved') {
+            const cm = getCm();
+            const c = (cm[pid] || []).find(x => x.id === commentId);
+            if (c) {
+                c.status = 'approved';
+                saveCm(cm);
+                refreshInsights(pid, true);
+                refresh();
+            }
+            return;
+        }
+
+        if (status === 'held') {
+            const cm = getCm();
+            const arr = cm[pid] || [];
+            const idx = arr.findIndex(x => x.id === commentId);
+            const c = idx >= 0 ? arr[idx] : null;
+            if (idx >= 0) {
+                arr.splice(idx, 1);
+                saveCm(cm);
+            }
+            if (c) {
+                c.status = 'held';
+                const held = getHeld();
+                if (!held[pid]) held[pid] = [];
+                held[pid].push(c);
+                saveHeld(held);
+                LIVE.commentBlocked[pid] = Date.now() + 60 * 1000;
+                refresh();
+            }
+            return;
+        }
+
+        pollPendingComment(pid, commentId, tries + 1);
+    }, PENDING_POLL_MS);
 }
 
 export function purgeExpiredHeld(pid: string): number {

@@ -1,33 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serviceDb } from './_lib/db.js';
 import { getPol } from './_lib/pols.js';
-import { generateJson, MODERATION_SYSTEM_PROMPT } from './_lib/gemini.js';
+import { classify, statusForLabel, sweepPending } from './_lib/moderation.js';
 import { COMMENT_MAX_LENGTH } from '../src/lib/constants.js';
-
-type Label = 'clean' | 'abusive' | 'spam' | 'incitement';
-
-const SCHEMA = {
-    type: 'object',
-    properties: {
-        label: { type: 'string', enum: ['clean', 'abusive', 'spam', 'incitement'] },
-    },
-    required: ['label'],
-};
-
-async function classify(text: string): Promise<Label | null> {
-    const prompt = `Classify this comment:
-"""${text}"""`;
-    try {
-        const out = await generateJson<{ label: Label }>(prompt, SCHEMA, MODERATION_SYSTEM_PROMPT, 6000);
-        if (out.label === 'clean' || out.label === 'abusive' || out.label === 'spam' || out.label === 'incitement') {
-            return out.label;
-        }
-        return null;
-    } catch (err) {
-        console.warn('moderation failed open:', String(err));
-        return null;
-    }
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
@@ -57,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const text = rawText.slice(0, COMMENT_MAX_LENGTH);
     const label = await classify(text);
-    const status = label === null || label === 'clean' ? 'approved' : 'held';
+    const status = statusForLabel(label);
 
     const db = serviceDb();
     const { data, error } = await db
@@ -86,4 +61,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status,
         createdAt: data.created_at,
     });
+
+    if (label !== null) {
+        try {
+            await sweepPending(5);
+        } catch (err) {
+            console.warn('opportunistic sweep failed:', String(err));
+        }
+    }
 }

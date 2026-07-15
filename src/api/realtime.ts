@@ -44,5 +44,28 @@ export function subscribeRealtime(): void {
                 }
             }
         )
+        .on('postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'poll_comments' },
+            (payload: { new: { politician_id?: string; id?: string | number; handle?: string; comment_text?: string; direction?: string | null; created_at?: string; status?: string } }) => {
+                const row = payload.new;
+                if (!row || !row.politician_id || row.status !== 'approved') return;
+                const cm = getCm();
+                if (!cm[row.politician_id]) cm[row.politician_id] = [];
+                const id = String(row.id);
+                if (!cm[row.politician_id].some(c => c.id === id)) {
+                    cm[row.politician_id].push({
+                        id,
+                        voter: row.handle || 'Anonymous_Voter',
+                        text: row.comment_text || '',
+                        sentiment: (row.direction as import('../types.js').VoteDirection | null) ?? 'neutral',
+                        ts: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+                        status: 'approved',
+                    });
+                    saveCm(cm);
+                    refresh();
+                    refreshInsights(row.politician_id, true);
+                }
+            }
+        )
         .subscribe();
 }
