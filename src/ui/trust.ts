@@ -302,8 +302,13 @@ export function passionMeter(pid: string): string {
     const approved = (cm[pid] || []).filter(c => c.status === 'approved').length;
 
     let body: string;
-    if (!ins || ins.temperature === null || approved < MIN_COMMENTS_AI) {
+    if (approved < MIN_COMMENTS_AI) {
         body = insufficientComments(approved);
+    } else if (!ins || ins.temperature === null) {
+        body = `<div class="nodata">
+          <div class="nodata-label">Reading the room</div>
+          <div class="nodata-text">Enough comments are in. The AI is analyzing the conversation now, this takes a moment.</div>
+        </div>`;
     } else {
         const t = ins.temperature;
         const barColor = t > 70 ? 'var(--amber)' : 'var(--lime)';

@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serviceDb } from './_lib/db.js';
 import { getPol } from './_lib/pols.js';
 import { generateJson, INSIGHTS_SYSTEM_PROMPT } from './_lib/gemini.js';
-import { MIN_COMMENTS_AI, INSIGHTS_TTL_MS, INSIGHTS_NEW_COMMENT_TRIGGER } from '../src/lib/constants.js';
+import { MIN_COMMENTS_AI } from '../src/lib/constants.js';
 
 interface InsightOut {
     temperature: number;
@@ -77,15 +77,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
     }
 
-    if (cached?.computed_at) {
-        const unchanged = commentCount === (cached.comment_count_at_compute ?? -1);
-        const age = Date.now() - new Date(cached.computed_at).getTime();
-        const bigDelta = Math.abs(commentCount - (cached.comment_count_at_compute ?? 0)) >= INSIGHTS_NEW_COMMENT_TRIGGER;
-        if (unchanged || (age < INSIGHTS_TTL_MS && !bigDelta)) {
-            console.log(`insights cache hit for ${politicianId}`);
-            res.status(200).json(rowToPayload(cached, commentCount));
-            return;
-        }
+    if (cached?.computed_at && commentCount === (cached.comment_count_at_compute ?? -1)) {
+        console.log(`insights cache hit for ${politicianId}`);
+        res.status(200).json(rowToPayload(cached, commentCount));
+        return;
     }
 
     const { data: comments } = await db

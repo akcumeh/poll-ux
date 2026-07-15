@@ -6,9 +6,6 @@ export const VOTE_COOLDOWN_SECONDS = 60;
 export const DAILY_ACTION_CEILING = 150;
 export const HOURLY_REPORT_CEILING = 20;
 
-export const INSIGHTS_TTL_MS = 10 * 60 * 1000;
-export const INSIGHTS_NEW_COMMENT_TRIGGER = 5;
-
 export const BRIEFING_REFRESH_SHOW_MS = 60 * 1000;
 
 export function currentHourStart(): number {

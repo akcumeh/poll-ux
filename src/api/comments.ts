@@ -3,6 +3,7 @@ import { callApi } from '../lib/apiClient.js';
 import { getUV, getCm, saveCm, getHeld, saveHeld, getHandle, getUID } from '../lib/storage.js';
 import { COMMENT_MAX_LENGTH, HELD_VISIBLE_MS } from '../lib/constants.js';
 import { LIVE } from '../lib/live.js';
+import { refreshInsights } from './insights.js';
 import { showToast } from '../ui/toast.js';
 import { refresh } from '../ui/nav.js';
 
@@ -79,6 +80,8 @@ export async function submitComment(pid: string, text: string): Promise<void> {
             held[pid].push(comment);
             saveHeld(held);
             LIVE.commentBlocked[pid] = Date.now() + 60 * 1000;
+        } else {
+            refreshInsights(pid, true);
         }
         refresh();
     } catch (err) {

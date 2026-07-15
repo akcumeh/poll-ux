@@ -35,6 +35,12 @@ export function go(id: PageId): void {
     if (id !== 'detail' && new URLSearchParams(location.search).has('pol')) {
         history.pushState({}, '', location.pathname);
     }
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        viewport.setAttribute('content', id === 'detail'
+            ? 'width=device-width, initial-scale=1.0, maximum-scale=1'
+            : 'width=device-width, initial-scale=1.0');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (RENDERERS[id]) RENDERERS[id]();
 }

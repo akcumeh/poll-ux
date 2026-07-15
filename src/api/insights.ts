@@ -33,9 +33,9 @@ function blankInsights(pid: string) {
     };
 }
 
-export async function refreshInsights(pid: string): Promise<void> {
+export async function refreshInsights(pid: string, force = false): Promise<void> {
     const asked = insightsAskedAt[pid] || 0;
-    if (Date.now() - asked < INSIGHTS_CLIENT_TTL_MS) return;
+    if (!force && Date.now() - asked < INSIGHTS_CLIENT_TTL_MS) return;
     insightsAskedAt[pid] = Date.now();
 
     const { ok, data } = await callApi<InsightsResponse>('ai-insights', { politicianId: pid });

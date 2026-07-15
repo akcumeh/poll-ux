@@ -1,5 +1,6 @@
 import { db } from '../lib/supabase.js';
 import { getC, saveC, getCm, saveCm } from '../lib/storage.js';
+import { refreshInsights } from './insights.js';
 import { refresh } from '../ui/nav.js';
 
 export function subscribeRealtime(): void {
@@ -39,6 +40,7 @@ export function subscribeRealtime(): void {
                     });
                     saveCm(cm);
                     refresh();
+                    refreshInsights(row.politician_id, true);
                 }
             }
         )
