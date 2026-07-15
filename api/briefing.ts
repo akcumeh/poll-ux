@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serviceDb } from './_lib/db.js';
 import { getPol } from './_lib/pols.js';
 import { generateGrounded, BRIEFING_SYSTEM_PROMPT } from './_lib/gemini.js';
-import { BRIEFING_TTL_MS } from '../src/lib/constants.js';
+import { currentHourStart } from '../src/lib/constants.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
@@ -29,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (
         cached?.briefing &&
         cached.briefing_at &&
-        Date.now() - new Date(cached.briefing_at).getTime() < BRIEFING_TTL_MS
+        new Date(cached.briefing_at).getTime() >= currentHourStart()
     ) {
         console.log(`briefing cache hit for ${politicianId}`);
         res.status(200).json({ ok: true, briefing: cached.briefing, generatedAt: cached.briefing_at });
