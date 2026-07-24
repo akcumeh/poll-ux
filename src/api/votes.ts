@@ -20,7 +20,7 @@ interface InsightRow {
 
 export async function loadFromSupabase(): Promise<void> {
     try {
-        const uid = getUID();
+        const uid = await getUID();
         const [votes, uVotes, cmts, zones, polZones, insights] = await Promise.all([
             db.from('poll_votes').select('*'),
             db.from('poll_user_votes').select('politician_id, direction').eq('user_id', uid),
@@ -143,8 +143,9 @@ export async function castVote(pid: string, type: VoteDirection): Promise<void> 
 
     try {
         const region = getRegion();
+        const uid = await getUID();
         const { ok, data, error } = await callApi<{ counts: { s: number; o: number; u: number } }>('cast-vote', {
-            uid: getUID(),
+            uid,
             politicianId: pid,
             direction: removing ? null : type,
             state: region?.state ?? null,

@@ -5,10 +5,12 @@ export const SK = 'pollux_c2';
 export const UK = 'pollux_uv1';
 export const CK = 'pollux_cm2';
 export const HK = 'pollux_usr1';
-export const UID_KEY = 'pollux_uid';
 export const LV_KEY = 'pollux_lv1';
 export const RG_KEY = 'pollux_region1';
 export const HELD_KEY = 'pollux_held1';
+
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
+const fpPromise = FingerprintJS.load()
 
 function readJson<T>(key: string, fallback: T): T {
     try {
@@ -99,7 +101,7 @@ export function getHandle(): string {
         if (existing) {
             return existing;
         }
-        const adj = ['Candid', 'Astute', 'Civic', 'Vigilant', 'Informed', 'Earnest', 'Honest', 'Active'];
+        const adj = ['Candid', 'Astute', 'Civic', 'Vigilant', 'Informed', 'Earnest', 'Honest', 'Active', 'Concerned', 'Bothered', 'Unbothered'];
         const handle = adj[Math.floor(Math.random() * adj.length)] + '_Voter' + Math.floor(Math.random() * 9999);
         localStorage.setItem(HK, handle);
         return handle;
@@ -108,16 +110,19 @@ export function getHandle(): string {
     }
 }
 
-export function getUID(): string {
-    try {
-        const existing = localStorage.getItem(UID_KEY);
-        if (existing) {
-            return existing;
-        }
-        const id = 'anon_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-        localStorage.setItem(UID_KEY, id);
-        return id;
-    } catch (e) {
-        return 'anon_fallback';
+let uidPromise: Promise<string> | null = null;
+
+export function getUID(): Promise<string> {
+    if (!uidPromise) {
+        uidPromise = (async () => {
+            try {
+                const fp = await fpPromise;
+                const result = await fp.get();
+                return result.visitorId;
+            } catch (e) {
+                return 'anon_fallback';
+            }
+        })();
     }
+    return uidPromise;
 }

@@ -10,6 +10,7 @@
     "db:push": "supabase db push"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@google/genai": "^2.11.0",
     "@supabase/supabase-js": "^2.49.4",
     "nodemailer": "^9.0.3"

@@ -2,7 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "crons": [
-    { "path": "/api/remoderate", "schedule": "*/10 * * * *" }
+    { "path": "/api/remoderate", "schedule": "0 3 * * *" }
   ],
   "functions": {
     "api/remoderate.ts": { "maxDuration": 60 }

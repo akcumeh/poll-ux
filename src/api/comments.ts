@@ -44,7 +44,7 @@ export async function submitComment(pid: string, text: string): Promise<void> {
 
     try {
         const { ok, data } = await callApi<{ id: string; status: string; createdAt: string }>('moderate-comment', {
-            uid: getUID(),
+            uid: await getUID(),
             politicianId: pid,
             handle,
             text: commentText,
@@ -101,7 +101,7 @@ function pollPendingComment(pid: string, commentId: string, tries = 0): void {
     if (tries >= PENDING_POLL_MAX_TRIES) return;
     window.setTimeout(async () => {
         const { ok, data } = await callApi<{ statuses: Record<string, string> }>('comment-status', {
-            uid: getUID(),
+            uid: await getUID(),
             ids: [commentId],
         });
         const status = ok && data ? data.statuses[commentId] : undefined;

@@ -7,5 +7,5 @@ export async function reportComment(commentId: string): Promise<void> {
     if (LIVE.reported[commentId]) return;
     LIVE.reported[commentId] = true;
     refresh();
-    await callApi('report-comment', { uid: getUID(), commentId });
+    await callApi('report-comment', { uid: await getUID(), commentId });
 }
